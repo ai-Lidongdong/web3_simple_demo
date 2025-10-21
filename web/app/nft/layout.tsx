@@ -1,22 +1,33 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "./page.module.css";
+import { getCookie } from '@/utils'
 import {
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
 import { Layout, Menu, theme } from 'antd';
 const { Header, Sider, Content } = Layout;
 
 export default function Home() {
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  useEffect(() => {
+    const privySession = getCookie('privy-session');
+    if(!privySession) {
+      router.replace('/login')
+    }
+  }, [])
+
   return (
     <div className={styles.wrap}>
-      <Layout style={{height: '100%'}}>
+      <Layout style={{ height: '100%' }}>
         <Sider trigger={null} collapsible collapsed={collapsed}>
           <div className="demo-logo-vertical" />
           <Menu
