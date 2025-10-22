@@ -1,34 +1,30 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import styles from "./page.module.css";
-import { getCookie } from '@/utils'
-import {
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
+import { usePrivy } from '@privy-io/react-auth';
 import { Layout, Menu, theme } from 'antd';
-const { Header, Sider, Content } = Layout;
+import { UserOutlined } from '@ant-design/icons';
+import { getCookie } from '@/utils';
+import styles from "./page.module.css";
+import NFTHeader from '@/app/components/NFTHeader';
 
-export default function Home() {
+const { Sider, Content } = Layout;
+
+const NFTList = ({ children }) => {
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+const { user } = usePrivy();
 
   useEffect(() => {
     const privySession = getCookie('privy-session');
     if(!privySession) {
       router.replace('/login')
     }
-  }, [])
+  }, []);
 
   return (
     <div className={styles.wrap}>
       <Layout style={{ height: '100%' }}>
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Sider trigger={null} collapsible collapsed={false}>
           <div className="demo-logo-vertical" />
           <Menu
             theme="dark"
@@ -38,38 +34,27 @@ export default function Home() {
               {
                 key: '1',
                 icon: <UserOutlined />,
-                label: 'nav 1',
-              },
-              {
-                key: '2',
-                icon: <VideoCameraOutlined />,
-                label: 'nav 2',
-              },
-              {
-                key: '3',
-                icon: <UploadOutlined />,
-                label: 'nav 3',
+                label: 'NFT列表',
               },
             ]}
           />
         </Sider>
         <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }}>
-
-          </Header>
+          <NFTHeader address={user?.wallet?.address}/>
           <Content
             style={{
               margin: '24px 16px',
               padding: 24,
               minHeight: 280,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
+              background: '#fff',
+              borderRadius: '10px',
             }}
           >
-            Content
+            {children}
           </Content>
         </Layout>
       </Layout>
     </div>
   );
 }
+export default NFTList;

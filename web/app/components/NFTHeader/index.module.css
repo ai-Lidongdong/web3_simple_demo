@@ -1,0 +1,20 @@
+.nft_header {
+    text-align: right;
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 5px 20px;
+    background: '#242222ff';
+}
+.user {
+    padding:0 10px;
+    color: #fff;
+    border-radius: 6px;
+}
+.logout_icon {
+    vertical-align: middle;
+    font-size: 20px;
+}
+.logout span{
+    margin-left: 10px;
+    vertical-align: middle;
+}

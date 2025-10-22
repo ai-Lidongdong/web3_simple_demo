@@ -5,11 +5,17 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
+    "@pinata/sdk": "^2.1.0",
     "@privy-io/react-auth": "^3.3.0",
     "antd": "^5.27.6",
+    "axios": "^1.12.2",
+    "form-data": "^4.0.4",
+    "formidable": "^3.5.4",
     "next": "15.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -19,6 +25,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.38.0",
+    "eslint-config-next": "^15.5.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

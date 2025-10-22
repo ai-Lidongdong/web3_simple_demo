@@ -1,3 +1,15 @@
 .wrap {
     height: 100vh;
 }
+.opt_list {
+    padding: 20px 0;
+    text-align: right;
+}
+.nft_list {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+.nft_item {
+    margin-left: 20px;
+}

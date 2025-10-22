@@ -1,6 +1,6 @@
 'use client'
 import { Geist, Geist_Mono } from "next/font/google";
-import { PrivyProvider } from '@privy-io/react-auth';
+import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { getCookie } from '@/utils'
@@ -18,13 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname(); 
-  console.log('哈哈哈哈哈哈哈哈哈哈或')
   useEffect(()=>{
 const token = getCookie('privy-session');
-console.log('token 的值：', token);
+
   }, [])
 
-console.log('------pathname', pathname)
+
 
   return (
     <html lang="en">

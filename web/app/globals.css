@@ -14,8 +14,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* --background: #0a0a0a; */
-    /* --foreground: #ededed; */
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
 }
 
@@ -23,4 +23,22 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.single_line {
+  white-space: nowrap;      /* 强制文本在一行显示，不换行 */
+  overflow: hidden;         /* 隐藏超出容器的部分 */
+  text-overflow: ellipsis;  /* 超出部分显示省略号 */
+  /* 可选：设置容器宽度，限制文本范围 */
+  width: 200px; 
+}
+.multi_line {
+  display: -webkit-box;      /* 将元素作为弹性伸缩盒子模型显示 */
+  -webkit-box-orient: vertical; /* 设置伸缩盒子的子元素排列方式为垂直 */
+  -webkit-line-clamp: 3;     /* 限制显示的行数（此处为 3 行） */
+  overflow: hidden;          /* 隐藏超出部分 */
+  text-overflow: ellipsis;   /* 超出部分显示省略号 */
+  /* 可选：设置容器宽度和行高 */
+  width: 300px;
+  line-height: 1.5;
 }
