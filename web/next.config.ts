@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/pinata/:path*', // 前端请求的路径（如 /api/users 会被代理）
+        destination: 'https://uploads.pinata.cloud/:path*', // 目标 API 地址
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,15 +1,15 @@
 'use client'
-import { Geist, Geist_Mono } from "next/font/google";
+// import { Geist, Geist_Mono } from "next/font/google";
 import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { getCookie } from '@/utils'
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ const token = getCookie('privy-session');
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} antialiased`}
+        // className={`${geistSans.variable} antialiased`}
       >
         {/* 配置 Privy Provider */}
         <PrivyProvider
