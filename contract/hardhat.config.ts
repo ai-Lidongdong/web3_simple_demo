@@ -1,7 +1,15 @@
 import type { HardhatUserConfig } from "hardhat/config";
 
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
-import { configVariable } from "hardhat/config"; // lisgtg1
+// import { configVariable } from "hardhat/config";
+// require("").config();
+import * as envEncConfig from "@chainlink/env-enc";
+envEncConfig.config();  // 加载env-enc加密的环境变量，可通过process.env.直接访问解密后的变量值
+
+
+const  PRIVATE_KEY = process.env.PRIVATE_KEY;
+const SEPOLIA_URL = process.env.SEPOLIA_URL;
+const AMOY_URL = process.env.AMOY_URL;
 
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxMochaEthersPlugin],
@@ -22,20 +30,20 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhatMainnet: {
-      type: "edr-simulated",
-      chainType: "l1",
-    },
-    hardhatOp: {
-      type: "edr-simulated",
-      chainType: "op",
-    },
     sepolia: {
       type: "http",
       chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+      url: SEPOLIA_URL!,
+      accounts: [PRIVATE_KEY!],
+
     },
+    amoy: {
+      type: "http",
+      chainType: "l1",
+      url: AMOY_URL!,
+      accounts: [PRIVATE_KEY!],
+ 
+    }
   },
 };
 

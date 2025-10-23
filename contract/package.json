@@ -23,5 +23,8 @@
     "mocha": "^11.7.4",
     "typescript": "~5.8.0"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@chainlink/env-enc": "^1.0.5"
+  }
 }
