@@ -36,7 +36,7 @@ const Logout = ({ address }: {
         <>
           <Header className={styles.nft_header}>
             <Dropdown menu={{ items }} placement="bottom">
-                <motion.div className={`${styles.user} single_line`} whileHover={{background: '#6c5e5eff'}}>{address}<DownOutlined/></motion.div>
+                <motion.div className={`${styles.user}`} whileHover={{background: '#6c5e5eff'}}>{address}<DownOutlined/></motion.div>
             </Dropdown>
           </Header>
 

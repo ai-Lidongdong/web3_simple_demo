@@ -15,6 +15,10 @@
     border-radius: 10px;
     border:solid 1px #f2f2f2;
     overflow: hidden;
+    position: relative;
+    nft_info {
+        padding: 12px;
+    }
     .nft_img {
         width: 200px;
         height: 200px;
@@ -30,6 +34,42 @@
     }
     .single_line {
         display: inline-block;
-        width:60px;
+        white-space: nowrap;      /* 强制文本在一行显示，不换行 */
+        overflow: hidden;         /* 隐藏超出容器的部分 */
+        text-overflow: ellipsis;  /* 超出部分显示省略号 */
+        /* 可选：设置容器宽度，限制文本范围 */
+        width: 120px; 
+    }
+    .top {
+        display: flex;
+        font-size: 20px;
+        padding: 12px 12px 0 12px;
+        .token_id {
+            margin-left: 4px;
+        }
+    }
+    .detail {
+        padding: 0 12px 6px 12px
+    }
+    .last_sale {
+        color: #666;
+        font-size: 12px;
+        span {
+            color: #333;
+        }
+    }
+    .buy_now {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 40px;
+        background-color: #6e97f6;
+        line-height: 40px;
+        color: #fff;
+        padding: 0 12px;
+        display: flex;
+        justify-content: space-between;
+        
     }
 }

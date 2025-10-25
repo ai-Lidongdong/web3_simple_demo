@@ -5,14 +5,20 @@ import { ethers, Contract } from "ethers";
 import styles from "./page.module.css";
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
+import { motion } from "framer-motion";
 import { NFT_CONTRACT_ADDRESS, IPFS_GATEWAY } from '@/app/constants';
 import MyNFTABI from '../abi/MyNFTModule#MyNFT.json';
 import type { NftMetadata, NftMetadataList } from './Nft';
-
+// 定义动画变体
+const variants = {
+  inactive: { y: 40, opacity: 0 },
+  active: { y: 0, opacity: 1 }
+};
 const Home = () => {
   const router = useRouter();
   const [balance, setBalance] = useState(0);
   const [nftList, setNftList] = useState<NftMetadataList[]>();
+  const [isHovered, setIsHovered] = useState(false);
   const { Meta } = Card;
   const { user } = usePrivy() as any;
   const { address } = user?.wallet || {};
@@ -32,9 +38,9 @@ const Home = () => {
         signer,
       );
       try {
-
-         // query total nfts count
-        const userBalance = await contract?.balanceOf(address);
+        // query total nfts count
+        const userBalance = await contract?.balanceOf(NFT_CONTRACT_ADDRESS);
+        console.log('----userBalance', userBalance)
         if (typeof userBalance === 'bigint') {
           const balanceNum = Number(userBalance);
           setBalance(balanceNum)
@@ -64,7 +70,7 @@ const Home = () => {
       }
     }
   }
-  
+
   // 从 IPFS 或 HTTP 加载 NFT 元数据
   const fetchNFTMetadata = async (tokenUri: string) => {
     try {
@@ -108,7 +114,7 @@ const Home = () => {
     const tx = await nftContract.burn(4);
     console.log('-------------------------->tx', tx)
   }
-  const ass = ({tokenId, metadata}) =>{
+  const ass = ({ tokenId, metadata }) => {
     return (
       <div className={styles.nft_title}>
         <div className={styles.nft_name}>#{tokenId}</div>
@@ -125,42 +131,36 @@ const Home = () => {
       </div>
       <div className={styles.nft_list}>
         {
-          nftList?.map((item: any) => { 
+          nftList?.map((item: any) => {
             const { metadata, tokenId } = item;
             return (
-              <div className={styles.nft_item}>
-                <Image className={styles.nft_img} src={metadata.image}/>
+              <motion.div
+              className={styles.nft_item}
+              whileHover={{ scale: 1.02 }}
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}>
+                <Image className={styles.nft_img} src={metadata.image} />
                 <div className={styles.nft_info}>
                   <div className={styles.top}>
                     <span className={styles.single_line}>{metadata.name}</span>
-                    #{tokenId}
+                    <span className={styles.token_id}>#{tokenId}</span>
                   </div>
                   <div className={styles.detail}>
-                    <div className={styles.price}>{metadata.price}<span>  NT</span></div>
-                    <div className={styles.last_sale}>Last sale{metadata.price} <span>  NT</span></div>
+                    <div className={styles.price}>{metadata.price.toFixed(2)}<span>  NT</span></div>
+                    <div className={styles.last_sale}>Last sale <span>{metadata.price.toFixed(2)}</span>  NT</div>
                   </div>
-
                 </div>
-
-              </div>
-              // <Card
-              //   className={styles.nft_item}
-              //   hoverable
-              //   key={tokenId}
-              //   style={{ width: 240 }}
-              //   cover={
-              //     <img
-              //       draggable={false}
-              //       alt="example"
-              //       src={metadata.image}
-              //     />
-              //   }
-              // >
-              //   <Meta
-              //   className={styles.meta}
-              //   title={ass(item)}
-              //   description="www.instagram.com" />
-              // </Card>
+                <motion.div
+                  className={styles.buy_now}
+                  variants={variants}
+                  initial="inactive"
+                  animate={isHovered ? "active" : "inactive"} // 根据状态切换变体
+                  transition={{ duration: 0.3 }}
+                >
+                  <span>Buy now</span>
+                  <span>{metadata.price.toFixed(2)}  NT</span>
+                </motion.div>
+              </motion.div>
             )
           })
         }
