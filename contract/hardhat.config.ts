@@ -12,17 +12,8 @@ envEncConfig.config();  // 加载env-enc加密的环境变量，可通过process
 const  PRIVATE_KEY = process.env.PRIVATE_KEY;
 const SEPOLIA_URL = process.env.SEPOLIA_URL;
 const AMOY_URL = process.env.AMOY_URL;
-const chainIds = {
-  goerli: 5,
-  hardhat: 31337,
-  kovan: 42,
-  mainnet: 1,
-  rinkeby: 4,
-  ropsten: 3,
-};
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxMochaEthersPlugin],
-  defaultNetwork: "hardhat",
   solidity: {
     profiles: {
       default: {

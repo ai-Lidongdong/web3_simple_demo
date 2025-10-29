@@ -20,7 +20,7 @@ contract MyNFT is
     constructor(
         address initialOwner,
         string memory nftName,
-        string memory nftSymbol,
+        string memory nftSymbol
     )
         ERC721(nftName, nftSymbol)
         Ownable(initialOwner)
