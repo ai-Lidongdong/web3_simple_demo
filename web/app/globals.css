@@ -25,6 +25,36 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+
+@font-face {
+  font-family: "iconfont"; /* Project id 5052723 */
+  /* Color fonts */
+  src: 
+       url('//at.alicdn.com/t/c/font_5052723_k1f87snultc.woff2?t=1761748031653') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5052723_k1f87snultc.woff?t=1761748031653') format('woff'),
+       url('//at.alicdn.com/t/c/font_5052723_k1f87snultc.ttf?t=1761748031653') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-icon-test-copy:before {
+  content: "\e678";
+}
+
+.icon-yonghutouxiang:before {
+  content: "\e606";
+}
+
+
+
+
+
 .single_line {
   white-space: nowrap;      /* 强制文本在一行显示，不换行 */
   overflow: hidden;         /* 隐藏超出容器的部分 */
@@ -42,3 +72,5 @@ body {
   width: 300px;
   line-height: 1.5;
 }
+
+

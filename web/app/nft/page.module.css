@@ -1,6 +1,23 @@
+:global(:where(.css-dev-only-do-not-override-ac2jek).ant-layout-sider) {
+    background-color: #191E26 !important;
+}
+
+:global(:where(.css-dev-only-do-not-override-ac2jek).ant-menu-dark) {
+    background-color: #191E26 !important;
+}
 .wrap {
     min-height: 100vh;
 }
+.platform_name {
+    display: flex;
+    align-items: center;
+    span {
+        font-size: 18px;
+        font-weight: bold;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    }
+}
+
 .opt_list {
     padding: 20px 0;
     text-align: right;

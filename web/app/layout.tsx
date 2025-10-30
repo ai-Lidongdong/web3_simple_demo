@@ -1,35 +1,26 @@
 'use client'
-// import { Geist, Geist_Mono } from "next/font/google";
 import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { getCookie } from '@/utils'
 import "./globals.css";
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname(); 
-  useEffect(()=>{
-const token = getCookie('privy-session');
 
+  const pathname = usePathname();
+  useEffect(() => {
+    const token = getCookie('privy-session');
   }, [])
 
 
 
   return (
     <html lang="en">
-      <body
-        // className={`${geistSans.variable} antialiased`}
-      >
+      <body>
         {/* 配置 Privy Provider */}
         <PrivyProvider
           appId="cmgvtsoyg00qyl10c90rl26z4"  // 替换为你的实际 appId
