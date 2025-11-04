@@ -2,14 +2,13 @@
 pragma solidity ^0.8.28;
 // Compatible with OpenZeppelin Contracts ^5.4.0
 
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+// import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MyNFT is
-    ERC721,
     ERC721Enumerable,
     ERC721URIStorage,
     ERC721Burnable,

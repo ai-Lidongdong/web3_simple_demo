@@ -5,7 +5,7 @@ export type UploadResponse = {
 }
 
 // nft metadata type
-export type NftMetadata =  {
+export type NFTMetadataRes =  {
   name: string,
   price: number,
   url: string,

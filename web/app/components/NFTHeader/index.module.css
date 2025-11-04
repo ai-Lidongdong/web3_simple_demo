@@ -3,6 +3,8 @@
     display: flex;
     flex-direction: row-reverse;
     padding: 5px 20px;
+    box-sizing: border-box;
+    height: 8vh;
     background: '#242222ff';
     background-color: #222426 !important;
 }
@@ -17,7 +19,7 @@
         color: #fff !important;
     }
     .address {
-        width: 150px
+        width: 400px
     }
 }
 .logout_icon {

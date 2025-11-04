@@ -1,8 +1,6 @@
 'use client'
-import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
+import { PrivyProvider } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { getCookie } from '@/utils'
 import "./globals.css";
 
 export default function RootLayout({
@@ -11,11 +9,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const pathname = usePathname();
   useEffect(() => {
-    const token = getCookie('privy-session');
   }, [])
-
 
 
   return (

@@ -32,6 +32,11 @@ const Order = sequelize.define('Order', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  // NFT的tokenId
+  cid: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   // 价格（用字符串存储BigInt，避免精度丢失）
   price: {
     type: DataTypes.STRING,

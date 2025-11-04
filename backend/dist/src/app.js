@@ -21,10 +21,10 @@ const startServer = async () => {
         // 等待 MySQL 连接成功（依赖 config/db.js 中的 authenticate）
         await sequelize.authenticate();
         console.log('MySQL 连接成功，启动服务器...');
-        // 同步历史事件（首次启动时补全数据）
+        // // 同步历史事件（首次启动时补全数据）
         await syncHistoricalEvents();
         // 启动实时事件监听
-        listenToEvents();
+        // listenToEvents();
         // 启动 HTTP 服务器
         const PORT = process.env.PORT || 5000;
         app.listen(PORT, () => {

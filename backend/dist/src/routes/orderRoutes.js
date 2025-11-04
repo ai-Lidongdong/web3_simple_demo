@@ -1,6 +1,7 @@
 import express from 'express';
 import Order from '../models/Order.js';
 const router = express.Router();
+import { fetchNFTMetadata } from '../utils/index.js';
 // 1. 获取所有有效订单（分页）
 router.get('/active', async (req, res) => {
     try {
@@ -14,8 +15,16 @@ router.get('/active', async (req, res) => {
             limit, // 每页数量
             offset // 跳过的数量（分页偏移量）
         });
+        console.group('---orders', orders);
+        const data = await Promise.all(orders.map(async (item) => {
+            const metadata = await fetchNFTMetadata(item.cid);
+            return {
+                ...item.dataValues,
+                nftInfo: metadata
+            };
+        }));
         res.json({
-            orders,
+            resultObj: data,
             pagination: {
                 total: count, // 总数量
                 page,
@@ -45,6 +54,7 @@ router.get('/seller/:address', async (req, res) => {
 // 3. 获取订单详情
 router.get('/:orderId', async (req, res) => {
     try {
+        console.log('----req', req);
         const { orderId } = req.params;
         // 按 orderId 查询
         const order = await Order.findOne({

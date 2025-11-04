@@ -18,6 +18,7 @@ contract NFTMarketPlace is ReentrancyGuard {
         address seller; // 卖家地址
         address nftContract; // NFT 合约地址（支持多集合）
         uint256 tokenId; // NFT 唯一 ID
+        string cid;    // NFT 在 pinata 的cid
         uint256 price; // 售价（单位：支付代币的最小单位）
         address paymentToken; // 支付代币地址（address(0) 表示 ETH）
         bool isActive; // 订单是否有效
@@ -35,9 +36,10 @@ contract NFTMarketPlace is ReentrancyGuard {
         address indexed seller,
         address nftContract,
         uint256 indexed tokenId,
+        string cid,
         uint256 price,
         address paymentToken,
-        uint256 timestamp
+        uint256 timestamp,
         bool isActive,
         bool isEscrowed
     );
@@ -64,7 +66,8 @@ contract NFTMarketPlace is ReentrancyGuard {
         address nftContract,
         uint256 tokenId,
         uint256 price,
-        address paymentToken
+        address paymentToken,
+        string memory cid
     ) external nonReentrant {
         IERC721 nft = IERC721(nftContract);
 
@@ -86,6 +89,7 @@ contract NFTMarketPlace is ReentrancyGuard {
             seller: msg.sender,
             nftContract: nftContract,
             tokenId: tokenId,
+            cid: cid,
             price: price,
             paymentToken: paymentToken,
             isActive: true,
@@ -97,6 +101,7 @@ contract NFTMarketPlace is ReentrancyGuard {
             msg.sender,
             nftContract,
             tokenId,
+            cid,
             price,
             paymentToken,
             timestamp,
@@ -113,7 +118,8 @@ contract NFTMarketPlace is ReentrancyGuard {
         address nftContract,
         uint256 tokenId,
         uint256 price,
-        address paymentToken
+        address paymentToken,
+        string memory cid
     ) external nonReentrant {
         IERC721 nft = IERC721(nftContract);
 
@@ -136,6 +142,7 @@ contract NFTMarketPlace is ReentrancyGuard {
             seller: msg.sender,
             nftContract: nftContract,
             tokenId: tokenId,
+            cid: cid,
             price: price,
             paymentToken: paymentToken,
             isActive: true,
@@ -148,6 +155,7 @@ contract NFTMarketPlace is ReentrancyGuard {
             msg.sender,
             nftContract,
             tokenId,
+            cid,
             price,
             paymentToken,
             timestamp,

@@ -10,12 +10,10 @@ npx hardhat ignition deploy ignition/modules/MyNFT.ts --network sepolia
 contract列表
 0x5484bF6ddDc5d900b3FaFBCA8301C93419E28cA5
 
-
 # Version2
 npx hardhat ignition deploy ignition/modules/MyNFT.ts --network sepolia
 0x2924Af181Fb2C68E65cAfd9611b44BCe9fb68074
-
-
+0x85bDe626feCEA85d3F9de0A7c124fF09ddc8324f
 
 npx hardhat ignition deploy ignition/modules/MyToken.ts --network sepolia
 0xb1591B2Cb244B30478afb093dd691567208bC356
@@ -25,3 +23,5 @@ npx hardhat ignition deploy ignition/modules/MyToken.ts --network sepolia
 npx hardhat ignition deploy ignition/modules/NFTMarketPlace.ts --network sepolia
 0x0aC84cd2D97d1Ea971759F4F51fE57687DA04367
 0x8ac45921c7fbd4Dad02AdB660611dFa28f7e2B5c
+0xB117615364B10F6782fB70eAD47e7E1c4988c895
+0x95D3c809924cD8AfEb281C1916d156bff9498804

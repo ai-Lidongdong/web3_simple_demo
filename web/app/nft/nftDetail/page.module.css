@@ -1,0 +1,108 @@
+.wrap {
+    width: 900px;
+    margin: 0 auto;
+    padding: 100px 0;
+    color: #fff;
+}
+.img_box {
+    display: flex;
+    justify-content: center;
+}
+.nft_img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 
+        0 0 10px rgba(128, 0, 255, 0.6),
+        0 0 20px rgba(128, 0, 255, 0.4),
+        0 0 30px rgba(75, 0, 130, 0.3),
+        0 0 15px rgba(0, 255, 255, 0.5) inset;
+    filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.7));
+}
+.name {
+    font-size: 32px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 100px;
+    align-items: center;
+    :last-child {
+        font-size: 20px;
+        color:#999;
+    }
+}
+.description {
+    margin: 10px 0;
+    color: #999;
+}
+.nft_info {
+    margin-top: 10px;
+    .traits {
+        font-size: 24px;
+    }
+    .nft_item {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: solid 1px #424040;
+        color:#999;
+        padding: 10px 0;
+        font-size: 14px;
+        .key {
+            font-size: 18px;
+        }
+        .value {
+            font-size: 14px;
+        }
+    }
+}
+.sale_but {
+    width:500px;
+    height: 50px;
+    border-radius: 25px;
+    background-color: #8127DA;
+    border: none;
+    color: #fff;
+    display: block;
+    display: blocks;
+    font-size: 22px;
+    font-weight: bold;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    margin: 50px auto;
+    box-shadow: 0 10x 0 #8127DA;
+}
+
+
+.talbe_box {
+    width: 800px;
+    min-height:800px;
+    background-color: #fff;
+    margin: 0 auto;
+    border-radius: 10px;
+    padding: 20px;
+    .header {
+        font-size: 30px;
+        font-weight: bold;
+    }
+    .upload_img {
+        height: 150px;
+        .img {
+            border-radius: 6px;
+            width: 120px;
+            height: 120px;
+            border: dashed 2px #8127DA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #8127DA;
+            img {
+                width: 12px;
+                height: 12px;
+                margin-right:6px;
+            }
+        }
+    }
+    .form {
+        padding-top:30px;
+    }
+}

@@ -2,16 +2,17 @@
 import React, { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { ethers, Contract } from "ethers";
-import { Button, Form, Input, InputNumber, Space, message } from 'antd';
+import { Button, Form, Input, Space, message, Spin } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import UploadPage from '@/app/components/UploadImage';
-import MyNFTABI from '../../abi/MyNFTModule#MyNFT.json';
+import MyNFTABI from '../../artifacts/MyNFTModule#MyNFT.json';
 import { NFT_CONTRACT_ADDRESS } from '@/app/constants';
 import { onUploadJsonToPinata } from '@/utils';
 import { useRouter } from 'next/navigation';
+import styles from './page.module.css';
 
 const layout = {
-  labelCol: { span: 8 },
+  labelCol: { span: 4 },
   wrapperCol: { span: 16 },
 }
 
@@ -25,7 +26,6 @@ interface UploadResponse {
 // nft metadata type
 interface NftMetadata {
   name: string,
-  price: number,
   url: string,
   description: string,
   Traits: {
@@ -34,17 +34,16 @@ interface NftMetadata {
   }[]
 }
 
-
 const AddNft = () => {
   const router = useRouter();
   const { user } = usePrivy() as any;
   const { wallet = {} } = user || {};
   const [messageApi] = message.useMessage();
-
+  const [loading, setLoading] = useState('')
   const [nftImageInfo, setNftImageInfo] = useState<UploadResponse>(); // nft image info
 
-  // 提交nft信息，铸造nft
-  const onSubmit = async (event: NftMetadata) => {
+  // submkit nft info，start mint nft
+  const onCreateNft = async (event: NftMetadata) => {
     if (!nftImageInfo) {
       // If the NFT image is not uploaded, minting will be terminated
       messageApi.open({
@@ -69,7 +68,7 @@ const AddNft = () => {
     const { cid } = await onUploadJsonToPinata(metadata);
     // 1. 连接钱包
     const provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts", []); // 请求授权
+    // await provider.send("eth_requestAccounts", []); // 请求授权
     const signer = await provider.getSigner();
 
     // 2. 初始化合约实例
@@ -82,35 +81,35 @@ const AddNft = () => {
     // 3. 调用铸造函数，传入目标地址
     const tx = await nftContract.safeMintToAddress(wallet.address, `ipfs://${cid}`);
     console.log("铸造交易已发送，哈希：", tx.hash);
-
     // 4. 等待交易确认（上链）
     await tx.wait();
     // 上链完成，跳转会 nft 列表
-    router.replace('/nft')
+    router.replace('/nft/myNft');
   }
 
   return (
-    <>
-      <Form
+    <Spin size="large" tip={loading} spinning={!!loading}>
+    <div style={{paddingTop: '100px'}}>
+    <div className={styles.talbe_box}>
+      <div className={styles.header}>Create NFT</div>
+      <div className={styles.form}>
+        <Form
         {...layout}
         name="nest-messages"
-        onFinish={onSubmit}
-        style={{ maxWidth: 1000 }}
+        onFinish={onCreateNft}
+        style={{ width: 600 }}
       >
-        <Form.Item label="NFT Image" valuePropName="fileList">
-          <UploadPage feedback={(res: UploadResponse)=>{setNftImageInfo(res)}} />
+        <Form.Item label="Image" valuePropName="fileList">
+          <UploadPage setLoading={setLoading} feedback={(res: UploadResponse)=>{setNftImageInfo(res)}} />
         </Form.Item>
-        <Form.Item name="name" label="name" rules={[{ required: true }]}>
+        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
           <Input placeholder='plase input the name of nft' />
         </Form.Item>
-        <Form.Item name='price' label="Price" rules={[{ required: true }]}>
-          <InputNumber placeholder='plase input the price of nft' />
-        </Form.Item>
-        <Form.Item name='url' label="url" rules={[{ required: true }]}>
+        <Form.Item name='url' label="Url" rules={[{ required: true }]}>
           <Input placeholder='plase input the url of nft link external' />
         </Form.Item>
 
-        <Form.Item name='description' label="description" rules={[{ required: true }]}>
+        <Form.Item name='description' label="Description" rules={[{ required: true }]}>
           <Input.TextArea placeholder='plase input detail of the nft' />
         </Form.Item>
         <Form.Item label="Traits">
@@ -124,21 +123,21 @@ const AddNft = () => {
                       name={[name, 'trait_type']}
                       rules={[{ required: true, message: 'Missing first name' }]}
                     >
-                      <Input placeholder="First Name" />
+                      <Input placeholder="trait type" />
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'value']}
                       rules={[{ required: true, message: 'Missing last name' }]}
                     >
-                      <Input placeholder="Last Name" />
+                      <Input placeholder="trait value" />
                     </Form.Item>
                     <MinusCircleOutlined onClick={() => remove(name)} />
                   </Space>
                 ))}
                 <Form.Item>
                   <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                    Add field
+                    Add types
                   </Button>
                 </Form.Item>
               </>
@@ -147,11 +146,15 @@ const AddNft = () => {
         </Form.Item>
         <Form.Item label={null}>
           <Button type="primary" htmlType="submit">
-            Submit
+            Create NFT
           </Button>
         </Form.Item>
       </Form>
-    </>
+
+      </div>
+    </div>
+    </div>
+    </Spin>
   );
 }
 

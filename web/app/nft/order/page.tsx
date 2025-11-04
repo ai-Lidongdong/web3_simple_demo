@@ -2,7 +2,7 @@
 import styles from './page.module.css';
 import { useState, useEffect } from 'react';
 import { ethers, Contract } from "ethers";
-import { Button, Input, Image, Form, InputNumber, Space, message } from 'antd';
+import { Button, Input, Image, Form, InputNumber, message } from 'antd';
 import { usePrivy } from '@privy-io/react-auth';
 import MyTokenAbi from '../../artifacts/MyTokenModule#MyToken.json';
 import MyNFTAbi from '../../artifacts/MyNFTModule#MyNFT.json';

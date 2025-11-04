@@ -18,8 +18,9 @@ const NFTList = ({ children }: Readonly<{
 
   return (
     <div className={styles.wrap}>
-      <Layout style={{ minHeight: '100vh' }}>
+      <Layout>
         <Sider
+          style={{ height: '100vh' }}
           trigger={null}
           width={180}
         >
@@ -34,7 +35,7 @@ const NFTList = ({ children }: Readonly<{
             theme="dark"
             mode="inline"
             selectedKeys={[pathname]}
-            style={{ height: '100vh', borderRight: 0 }} // 全屏高度，去除右侧边框
+            style={{ borderRight: 0 }} // 全屏高度，去除右侧边框
           >
             {/* nft list page */}
             <Menu.Item key="/nft">
@@ -56,14 +57,14 @@ const NFTList = ({ children }: Readonly<{
           <Content
             style={{
               padding: 12,
-              minHeight: 280,
-              background: '#222426'
+              height: '92vh',
+              background: '#222426',
             }}
           >
             <div
               style={{
                 borderRadius: '12px',
-                minHeight: 280,
+                height: '90vh',
                 background: '#191E26'
               }}
             >

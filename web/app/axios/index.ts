@@ -1,0 +1,121 @@
+import axios from "axios";
+import { removeToken } from "../utils/auth";
+import { message } from "antd"; // 假设使用 Element Plus 提示组件（可替换为其他 UI 库）
+import { BACKEND_DEMAIN } from '../constants'
+// 创建 Axios 实例
+const service = axios.create({
+  baseURL: BACKEND_DEMAIN, // 基础地址
+  timeout: 10000, // 超时时间（10秒）
+  headers: {
+    "Content-Type": "application/json;charset=utf-8" // 默认请求头
+  }
+});
+
+// 存储当前所有请求的取消函数（用于取消请求）
+const cancelTokenSourceMap = new Map();
+
+/**
+ * 生成请求唯一标识（用于取消重复请求）
+ * @param {Object} config - Axios 请求配置
+ */
+const getRequestKey = (config) => {
+  const { method, url, params, data } = config;
+  return [method, url, JSON.stringify(params), JSON.stringify(data)].join("&");
+};
+
+// 请求拦截器：处理请求发送前的逻辑
+service.interceptors.request.use(
+  (config) => {
+    // 1. 添加 Token（如需要身份验证的接口）
+    // 2. 处理重复请求：取消之前未完成的同类型请求
+    const requestKey = getRequestKey(config);
+    // 如果已有相同请求的取消函数，执行取消
+    if (cancelTokenSourceMap.has(requestKey)) {
+      const cancel = cancelTokenSourceMap.get(requestKey);
+      cancel("取消重复请求");
+      cancelTokenSourceMap.delete(requestKey);
+    }
+    // 创建新的取消令牌
+    const source = axios.CancelToken.source();
+    config.cancelToken = source.token;
+    cancelTokenSourceMap.set(requestKey, source.cancel);
+    console.log('--request-config', config);
+
+    return config;
+  },
+  (error) => {
+    // 请求发送失败（如参数错误）
+    // ElMessage.error("请求配置错误：" + error.message);
+    message.error({
+        content: '请求配置错误',
+    })
+    return Promise.reject(error);
+  }
+);
+
+// 响应拦截器：处理接口返回后的逻辑
+service.interceptors.response.use(
+  (response) => {
+    // 1. 移除当前请求的取消函数
+    const requestKey = getRequestKey(response.config);
+    cancelTokenSourceMap.delete(requestKey);
+
+    // 2. 解析响应数据（假设后端统一返回 { code, data, message } 格式）
+    console.log('---response', response);
+    const { status, data } = response;
+
+    // 3. 根据业务状态码处理
+    if (status === 200) {
+      // 成功：返回核心数据
+      return data;
+    } else if (status === 401) {
+      // 未授权（Token 过期或无效）：清除 Token 并跳转登录页
+        //   ElMessage.error(message || "登录已过期，请重新登录");
+        message.error({
+            content: '登录已过期，请重新登录',
+        })
+      setTimeout(() => {
+        window.location.href = "/login"; // 跳转到登录页
+      }, 1000);
+      return Promise.reject(new Error('未授权'));
+    } else {
+      // 其他业务错误（如参数错误、服务器异常）
+    //   ElMessage.error(message || "接口请求失败");
+    message.error({
+        content: '接口请求失败',
+    })
+      return Promise.reject(new Error('业务错误'));
+    }
+  },
+  (error) => {
+    // 1. 移除当前请求的取消函数（如果存在）
+    if (error.config) {
+      const requestKey = getRequestKey(error.config);
+      cancelTokenSourceMap.delete(requestKey);
+    }
+
+    // 2. 处理网络错误或超时
+    if (axios.isCancel(error)) {
+      // 主动取消的请求（如重复请求），不提示错误
+      return Promise.reject(error);
+    } else if (!error.response) {
+      // 无响应（网络中断或超时）
+    //   ElMessage.error("网络异常，请检查网络连接");
+    message.error({
+        content: '网络异常，请检查网络连接',
+    })
+    } else {
+      // 有响应但状态码非 2xx（如 500 服务器错误）
+      const status = error.response.status;
+      const message = error.response.data?.message || `请求失败（${status}）`;
+    message.error({
+        content: `请求失败（${status})`,
+    })
+    //   ElMessage.error(message);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default service;

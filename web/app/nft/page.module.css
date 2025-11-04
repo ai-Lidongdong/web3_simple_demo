@@ -5,9 +5,6 @@
 :global(:where(.css-dev-only-do-not-override-ac2jek).ant-menu-dark) {
     background-color: #191E26 !important;
 }
-.wrap {
-    min-height: 100vh;
-}
 .platform_name {
     display: flex;
     align-items: center;
@@ -42,10 +39,8 @@
     }
     .meta {
         padding: 0;
-        border: solid 1px red;
     }
     .nft_title {
-        border:solid 2px red;
         display: flex;
         justify-content: space-between;
     }

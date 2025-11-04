@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         source: '/pinata/:path*', // 前端请求的路径（如 /api/users 会被代理）
         destination: 'https://uploads.pinata.cloud/:path*', // 目标 API 地址
       },
+      {
+        source: '/api/:path*', // 前端请求的路径（如 /api/users 会被代理）
+        destination: 'http://localhost:4000//:path*', // 目标 API 地址
+      },
     ];
   },
 };
