@@ -38,7 +38,7 @@ const AddNft = () => {
   const router = useRouter();
   const { user } = usePrivy() as any;
   const { wallet = {} } = user || {};
-  const [messageApi] = message.useMessage();
+
   const [loading, setLoading] = useState('')
   const [nftImageInfo, setNftImageInfo] = useState<UploadResponse>(); // nft image info
 
@@ -46,18 +46,10 @@ const AddNft = () => {
   const onCreateNft = async (event: NftMetadata) => {
     if (!nftImageInfo) {
       // If the NFT image is not uploaded, minting will be terminated
-      messageApi.open({
-        type: 'error',
-        content: 'please upload nft image',
-      });
       return
     }
     // not connect wallet
     if (!wallet?.address || !window.ethereum) {
-      messageApi.open({
-        type: 'error',
-        content: 'please login in again',
-      });
       return
     }
     // wallet connect finished, and EVM Ok!

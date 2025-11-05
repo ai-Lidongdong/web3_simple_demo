@@ -71,38 +71,15 @@
     box-shadow: 0 10x 0 #8127DA;
 }
 
-
-.talbe_box {
-    width: 800px;
-    min-height:800px;
-    background-color: #fff;
-    margin: 0 auto;
-    border-radius: 10px;
-    padding: 20px;
-    .header {
-        font-size: 30px;
-        font-weight: bold;
+.order_detail {
+    padding-top: 10px;
+    h2 {
+        font-size: 26px;
     }
-    .upload_img {
-        height: 150px;
-        .img {
-            border-radius: 6px;
-            width: 120px;
-            height: 120px;
-            border: dashed 2px #8127DA;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #8127DA;
-            img {
-                width: 12px;
-                height: 12px;
-                margin-right:6px;
-            }
-        }
-    }
-    .form {
-        padding-top:30px;
+    .order_item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: solid 1px #424040;
     }
 }

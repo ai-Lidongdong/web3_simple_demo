@@ -68,3 +68,42 @@ export const fetchNFTMetadata = async (tokenUri: string) => {
     return null;
   }
 };
+
+export const pathToMenuKey = (currentPath: string): any => {
+  // 优先匹配菜单配置中的路径
+  const HOME_MENU_PATHS = ['/nft', '/nft/order'];
+  const MY_NFT_PATHS = ['/nft/myNft', '/nft/nftDetail', '/nft/addNft'];
+  if(HOME_MENU_PATHS.includes(currentPath)){
+    return ['/nft'];
+  } else if(MY_NFT_PATHS.includes(currentPath)){
+    return ['/nft/myNft'];
+  }
+  return ['/nft']; // 默认返回首页菜单键
+};
+
+
+export const timestampToDate = (timestamp: number) => {
+  // 处理秒级时间戳（10位），转换为毫秒级
+  if(!timestamp) {
+    return '';
+  }
+  if (timestamp.toString().length === 10) {
+    timestamp = timestamp * 1000;
+  }
+
+  // 创建Date对象（传入毫秒级时间戳）
+  const date = new Date(timestamp);
+
+  // 提取年、月、日（月份从0开始，需+1）
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 补零（如3月→03）
+  const day = String(date.getDate()).padStart(2, '0');
+
+  // 提取时、分、秒
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  // 组合为YYYY-MM-DD HH:MM:SS格式
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}

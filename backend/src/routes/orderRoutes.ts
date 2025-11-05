@@ -17,15 +17,14 @@ router.get('/active', async (req: any, res: any) => {
       limit, // 每页数量
       offset // 跳过的数量（分页偏移量）
     });
-    console.group('---orders', orders)
-    const data = await Promise.all(orders.map(async(item)=>{
+    const data = await Promise.all(orders.map(async (item) => {
       const metadata = await fetchNFTMetadata(item.cid);
       return {
         ...item.dataValues,
         nftInfo: metadata
       }
     }))
-    
+
 
     res.json({
       resultObj: data,
@@ -46,10 +45,19 @@ router.get('/seller/:address', async (req, res) => {
     const { address } = req.params;
     // 按卖家地址查询，按创建时间降序
     const orders = await Order.findAll({
-      where: { seller: address },
+      where: { seller: address, isActive: 1 },
       order: [['createdAt', 'DESC']]
     });
-    res.json(orders);
+    console.log('---ordersds', orders);
+    const data = await Promise.all(orders.map(async (item) => {
+      const metadata = await fetchNFTMetadata(item.cid);
+      return {
+        ...item.dataValues,
+        nftInfo: metadata
+      }
+    }))
+
+    res.json(data);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

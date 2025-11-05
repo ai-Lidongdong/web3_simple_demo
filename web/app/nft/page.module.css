@@ -5,6 +5,9 @@
 :global(:where(.css-dev-only-do-not-override-ac2jek).ant-menu-dark) {
     background-color: #191E26 !important;
 }
+.wrap {
+    color:#fff;
+}
 .platform_name {
     display: flex;
     align-items: center;
@@ -17,51 +20,69 @@
 
 .opt_list {
     padding: 20px 0;
-    text-align: right;
+    padding-left: 20px;
+    display: flex;
+    justify-content: space-between;
+    img {
+        width: 30px;
+        height: 30px;
+    }
 }
 .nft_list {
     display: flex;
-    justify-content: flex-start;
+    /* justify-content: flex-start; */
     flex-wrap: wrap;
+    max-height: 75vh;
+    /* overflow: auto; */
 }
 .nft_item {
-    margin-left: 20px;
+    margin-left: 15px;
     border-radius: 10px;
     border:solid 1px #f2f2f2;
     overflow: hidden;
     position: relative;
-    .nft_info {
-        padding: 12px;
-    }
+    min-width: 180px;
+    /* max-width: 200px; */
+    /* height: a */
+    margin-bottom: 15px;
+    /* flex: 1; */
     .nft_img {
         width: 200px;
         height: 200px;
+        overflow: hidden;
+        img {
+            width: 200px;
+            height: 200px;
+        }
+        }
+    .select {
+        width: 30px;
+        height: 30px;
+        position: absolute; left: 160px;top: 5px;
+        float: right;
+        z-index: 99;
     }
-    .meta {
-        padding: 0;
-    }
-    .nft_title {
-        display: flex;
-        justify-content: space-between;
+    .nft_info {
+        padding: 8px 0;
     }
     .single_line {
         display: inline-block;
-        white-space: nowrap;      /* 强制文本在一行显示，不换行 */
-        overflow: hidden;         /* 隐藏超出容器的部分 */
-        text-overflow: ellipsis;  /* 超出部分显示省略号 */
-        /* 可选：设置容器宽度，限制文本范围 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         width: 120px; 
     }
     .top {
         display: flex;
         font-size: 20px;
-        padding: 12px 12px 0 12px;
-        .token_id {
-            margin-left: 4px;
-        }
+        padding: 0 10px;
+        justify-content: space-between;
     }
     .detail {
-        padding: 0 12px 6px 12px
+        margin-top: 8px;
+        padding: 0 12px 6px 12px;
+        display: flex;
+        justify-content: space-between;
     }
     .last_sale {
         color: #666;
@@ -70,18 +91,37 @@
             color: #333;
         }
     }
+    .nft_title {
+        display: flex;
+        justify-content: space-between;
+    }
     .buy_now {
         position: absolute;
         left: 0;
         bottom: 0;
         width: 100%;
-        height: 40px;
-        background-color: #6e97f6;
-        line-height: 40px;
+        height: 50px;
+        background-color: #8127DA;
+        line-height: 50px;
         color: #fff;
         padding: 0 12px;
         display: flex;
         justify-content: space-between;
         
+    }
+}
+
+.nft_item_active {
+    border: solid 2px #8127DA !important;
+}
+.operate {
+    margin-top: 20px;
+    display: flex;
+    justify-content: right;
+    padding:0 10px 10px 0;
+    Button {
+        background-color: #8127DA;
+        border: none;
+        color: #fff;
     }
 }

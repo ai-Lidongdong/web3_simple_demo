@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Button, Image, Modal, Form, Input, Switch, message, notification } from 'antd';
+import { Button, Image, Modal, Form, Input, Switch } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { ethers, Contract } from "ethers";
 import { usePrivy } from '@privy-io/react-auth';
@@ -9,20 +9,19 @@ import MyNFTABI from '../../artifacts/MyNFTModule#MyNFT.json';
 import MarketABI from '../../artifacts/NFTMarketPlaceModule#NFTMarketPlace.json';
 import { fetchNFTMetadata } from '../../../utils'
 import styles from "./page.module.css";
-import type { NFTMetadataRes } from '../Nft';
+import type { NFTMetadataRes } from '../nft';
+import { useRouter } from 'next/navigation';
 const layout = {
     labelCol: { span: 6 },
     wrapperCol: { span: 16 },
 }
 
 const NFTDetail = () => {
+    const router = useRouter();
+    const { user } = usePrivy() as any;
     const searchParams = useSearchParams();
     const tokenId = searchParams.get('tokenId');
-    // const [messageApi] = message.useMessage();
-      const [messageApi] = message.useMessage();
-    const { user } = usePrivy() as any;
     const { address } = user?.wallet || {};
-    const [api, contextHolder] = notification.useNotification();
     
     const [nftCid, setNftCid] = useState<string>('');
     const [nftInfo, setNftInfo] = useState<NFTMetadataRes>();
@@ -42,33 +41,14 @@ const NFTDetail = () => {
             signer,
         );
         const cid = await contract.tokenURI(tokenId);
-        const owner = await contract.ownerOf(tokenId);
         const metadata = await fetchNFTMetadata(cid);
         setNftInfo(metadata)
         setNftCid(cid)
     }
+
+    // open the modal to create order by nft
     const onSaleNFT = async () => {
-        api.open({
-      message: 'Notification Title',
-      description:
-        'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
-      className: 'custom-class',
-      style: {
-        width: 600,
-      },
-    });
-            // messageApi.info('Hello, Ant Design!');
-            // message.error('This is an error message');
-        // message.success({
-        //     content: 'Sale function is in development, please stay tuned!',
-        // })
-                    // messageApi.open({
-                    //     key: 'updatable',
-                    //     type: 'success',
-                    //     content: 'create order was successful',
-                    //     duration: 2,
-                    // });
-        // setOpenModal(true)
+        setOpenModal(true)
     }
 
     // create a order by nft
@@ -94,7 +74,6 @@ const NFTDetail = () => {
                     signer
                 );
                 const isApproved = await NftContractInstance.isApprovedForAll(address, MARKET_CONTRACT_ADDRESS);
-                console.log('---是否授权--》', isApproved);
                 if (!isApproved) {
                     // 授权：允许 operator 操作调用者的所有 NFT
                     await NftContractInstance.setApprovalForAll(MARKET_CONTRACT_ADDRESS, true);
@@ -113,21 +92,14 @@ const NFTDetail = () => {
                     paymentToken,
                     nftCid
                 );
-                console.log('-444')
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
                 contract.on("OrderCreated", async (a, b, c, d, e) => {
-                    console.log('---创建完成', a, b, c, d, e) // 0n 0x0B45b5157eD10e44833DE67199D8565E28C2fC6E 0x2924Af181Fb2C68E65cAfd9611b44BCe9fb68074 0n 20n
                     setOpenModal(false);
-                    messageApi.open({
-                        key: 'updatable',
-                        type: 'success',
-                        content: 'create order was successful',
-                        duration: 2,
-                    });
                     getNftDetail();
+                    router.replace('/nft');
                 });
             } catch (err) {
-                console.log('----err', err)
+                console.error('----err', err)
             }
         }
     }
@@ -155,7 +127,6 @@ const NFTDetail = () => {
                     nftInfo?.attributes?.map((item: {
                         trait_type: string;
                         value: string | number;
-                        display_type: string;
                     }, index: number) => {
                         return (
 

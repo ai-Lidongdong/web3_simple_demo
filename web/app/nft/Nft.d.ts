@@ -10,10 +10,28 @@ export type NFTMetadataRes =  {
   price: number,
   url: string,
   description: string,
-  Traits: {
+  image: string,
+  external_url?: string,
+  attributes: {
     trait_type: string,
     value: string,
   }[]
+}
+
+export type OrderValuesRes = {
+  orderId: string,
+  seller: string,
+  buyer: string,
+  nftContract: string,
+  tokenId: string,
+  cid: string,
+  price: string,
+  paymentToken: string,
+  isActive: boolean,
+  isEscrowed: boolean,
+  status: string,
+  createdAt: number | undefined,
+  updatedAt: number | undefined,
 }
 
 export type NftMetadataList =  {

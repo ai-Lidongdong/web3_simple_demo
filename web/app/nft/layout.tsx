@@ -2,12 +2,13 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Spin } from 'antd';
 import Image from 'next/image';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, ProductOutlined } from '@ant-design/icons';
 import styles from "./page.module.css";
 import NFTHeader from '@/app/components/NFTHeader';
 import Link from 'next/link';
+import { pathToMenuKey } from '../../utils';
 const { Sider, Content } = Layout;
 
 const NFTList = ({ children }: Readonly<{
@@ -15,7 +16,6 @@ const NFTList = ({ children }: Readonly<{
 }>) => {
   const pathname = usePathname(); // current page route pathname
   const { user } = usePrivy(); // get connected wallet info
-
   return (
     <div className={styles.wrap}>
       <Layout>
@@ -34,20 +34,21 @@ const NFTList = ({ children }: Readonly<{
           <Menu
             theme="dark"
             mode="inline"
-            selectedKeys={[pathname]}
+            selectedKeys={pathToMenuKey(pathname)}
             style={{ borderRight: 0 }} // 全屏高度，去除右侧边框
           >
             {/* nft list page */}
             <Menu.Item key="/nft">
               <Link href="/nft">
-                <UserOutlined />
-                <span>首页</span>
+                <ProductOutlined />
+                <span>HOME</span>
               </Link>
             </Menu.Item>
             {/* my nft list */}
             <Menu.Item key="/nft/myNft">
               <Link href="/nft/myNft">
-                <span>我的NFT</span>
+                <UserOutlined />
+                <span>MY NFT</span>
               </Link>
             </Menu.Item>
           </Menu>
@@ -61,6 +62,7 @@ const NFTList = ({ children }: Readonly<{
               background: '#222426',
             }}
           >
+            <Spin spinning={false} size='large'>
             <div
               style={{
                 borderRadius: '12px',
@@ -70,6 +72,7 @@ const NFTList = ({ children }: Readonly<{
             >
               {children}
             </div>
+            </Spin>
           </Content>
         </Layout>
       </Layout>

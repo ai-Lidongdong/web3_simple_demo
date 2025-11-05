@@ -5,6 +5,20 @@
 :global(:where(.css-dev-only-do-not-override-ac2jek).ant-menu-dark) {
     background-color: #191E26 !important;
 }
+:global(:where(.css-dev-only-do-not-override-ac2jek).ant-tabs-top >.ant-tabs-nav::before){
+    border-bottom: #8127DA 1px solid !important;
+}
+:global(.ant-tabs-tab) {
+    color: #fff !important;
+    border: solid 1px #8127DA !important;
+}
+:global(.ant-tabs-tab-active) {
+    color: #fff !important;
+    background: #8127DA !important;
+}
+:global(.ant-tabs-tab-btn) {
+    color: #fff !important;
+}
 .wrap {
     color:#fff;
 }
@@ -22,18 +36,17 @@
     padding: 20px 0;
     padding-left: 20px;
     display: flex;
-    justify-content: space-between;
-    img {
-        width: 30px;
-        height: 30px;
-    }
+    justify-content: flex-end;
+
+}
+.items_total {
+    width: 30px;
+    height: 30px;
 }
 .nft_list {
     display: flex;
-    /* justify-content: flex-start; */
     flex-wrap: wrap;
     max-height: 75vh;
-    /* overflow: auto; */
 }
 .nft_item {
     margin-left: 15px;
