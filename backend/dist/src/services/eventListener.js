@@ -118,8 +118,8 @@ export const syncHistoricalEvents = async () => {
             const { orderId, // 订单 ID
             timestamp // 取消时间戳
              } = event.args;
-            const orderIdNum = orderId.toNumber();
-            const timestampNum = timestamp.toNumber();
+            const orderIdNum = Number(orderId);
+            const timestampNum = Number(timestamp);
             // 更新订单状态为“已取消”
             await Order.update({
                 isActive: 0,
@@ -142,11 +142,11 @@ export const listenToEvents = () => {
             console.log(`监听到新订单创建，orderId: ${orderId}`);
             console.log('------订单信息------》', orderId, seller, nftContract, tokenId, cid, price, paymentToken, isEscrowed, timestamp);
             // 类型转换
-            const orderIdNum = orderId.toNumber();
-            const tokenIdNum = tokenId.toNumber();
-            const nftCid = cid.toNumber();
+            const orderIdNum = Number(orderId);
+            const tokenIdNum = Number(tokenId);
+            const nftCid = cid.toString();
             const priceStr = price.toString();
-            const timestampNum = timestamp.toNumber();
+            const timestampNum = Number(timestamp);
             const isEscrowedTinyInt = isEscrowed ? 1 : 0;
             // 写入数据库
             await Order.create({
@@ -172,8 +172,8 @@ export const listenToEvents = () => {
         try {
             console.log(`监听到订单成交，orderId: ${orderId}`);
             console.log('----------订单信息----->', orderId, buyer, timestamp);
-            const orderIdNum = orderId.toNumber();
-            const timestampNum = timestamp.toNumber();
+            const orderIdNum = Number(orderId);
+            const timestampNum = Number(timestamp);
             // 更新订单状态
             await Order.update({
                 buyer,
@@ -192,8 +192,8 @@ export const listenToEvents = () => {
         try {
             console.log(`监听到订单取消，orderId: ${orderId}`);
             console.log('--------->OrderCancelled', orderId, timestamp);
-            const orderIdNum = orderId.toNumber();
-            const timestampNum = timestamp.toNumber();
+            const orderIdNum = Number(orderId);
+            const timestampNum = Number(timestamp);
             // 更新订单状态
             await Order.update({
                 isActive: 0,

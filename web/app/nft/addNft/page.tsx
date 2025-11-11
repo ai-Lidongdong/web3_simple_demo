@@ -1,15 +1,14 @@
 'use client'
 import React, { useState } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
-import { ethers, Contract } from "ethers";
-import { Button, Form, Input, Space, message, Spin } from 'antd';
+import { Button, Form, Input, Space, Spin } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import UploadPage from '@/app/components/UploadImage';
-import MyNFTABI from '../../artifacts/MyNFTModule#MyNFT.json';
-import { NFT_CONTRACT_ADDRESS } from '@/app/constants';
 import { onUploadJsonToPinata } from '@/utils';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
+import { useContracts } from '../../contexts/ContractContext';
 
 const layout = {
   labelCol: { span: 4 },
@@ -35,10 +34,9 @@ interface NftMetadata {
 }
 
 const AddNft = () => {
+  const  { myNFT } = useContracts();
+  const { address } = useSelector((state: RootState) => state.wallet);
   const router = useRouter();
-  const { user } = usePrivy() as any;
-  const { wallet = {} } = user || {};
-
   const [loading, setLoading] = useState('')
   const [nftImageInfo, setNftImageInfo] = useState<UploadResponse>(); // nft image info
 
@@ -48,30 +46,17 @@ const AddNft = () => {
       // If the NFT image is not uploaded, minting will be terminated
       return
     }
-    // not connect wallet
-    if (!wallet?.address || !window.ethereum) {
+    if (!address) {
       return
     }
-    // wallet connect finished, and EVM Ok!
+    // wallet address connect finished, and EVM Ok!
     const metadata = {
       image: `ipfs://${nftImageInfo.cid}`,
       ...event,
     }
     const { cid } = await onUploadJsonToPinata(metadata);
-    // 1. 连接钱包
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    // await provider.send("eth_requestAccounts", []); // 请求授权
-    const signer = await provider.getSigner();
-
-    // 2. 初始化合约实例
-    const nftContract = new Contract(
-      NFT_CONTRACT_ADDRESS,
-      MyNFTABI.abi,
-      signer
-    );
-
     // 3. 调用铸造函数，传入目标地址
-    const tx = await nftContract.safeMintToAddress(wallet.address, `ipfs://${cid}`);
+    const tx = await myNFT?.safeMintToAddress(address, `ipfs://${cid}`);
     console.log("铸造交易已发送，哈希：", tx.hash);
     // 4. 等待交易确认（上链）
     await tx.wait();
@@ -137,7 +122,7 @@ const AddNft = () => {
           </Form.List>
         </Form.Item>
         <Form.Item label={null}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" style={{background: '#8127DA'}} htmlType="submit">
             Create NFT
           </Button>
         </Form.Item>

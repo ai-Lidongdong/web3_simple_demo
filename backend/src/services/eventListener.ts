@@ -150,8 +150,8 @@ export const syncHistoricalEvents = async () => {
         timestamp   // 取消时间戳
       } = event.args;
 
-      const orderIdNum = orderId.toNumber();
-      const timestampNum = timestamp.toNumber();
+      const orderIdNum = Number(orderId);
+      const timestampNum = Number(timestamp);
 
       // 更新订单状态为“已取消”
       await Order.update(
@@ -169,7 +169,6 @@ export const syncHistoricalEvents = async () => {
     console.error('历史事件同步失败:', err.message);
   }
 };
-
 
 // 4. 监听实时事件（新事件发生时实时同步到数据库）
 export const listenToEvents = () => {
@@ -200,11 +199,12 @@ export const listenToEvents = () => {
         timestamp)
 
       // 类型转换
-      const orderIdNum = orderId.toNumber();
-      const tokenIdNum = tokenId.toNumber();
-      const nftCid = cid.toNumber();
+      const orderIdNum = Number(orderId);
+       
+      const tokenIdNum = Number(tokenId);
+      const nftCid = cid.toString();
       const priceStr = price.toString();
-      const timestampNum = timestamp.toNumber();
+      const timestampNum = Number(timestamp);
       const isEscrowedTinyInt = isEscrowed ? 1 : 0;
 
       // 写入数据库
@@ -240,8 +240,8 @@ export const listenToEvents = () => {
         buyer,
         timestamp)
 
-      const orderIdNum = orderId.toNumber();
-      const timestampNum = timestamp.toNumber();
+      const orderIdNum = Number(orderId);
+      const timestampNum = Number(timestamp);
 
       // 更新订单状态
       await Order.update(
@@ -270,8 +270,8 @@ export const listenToEvents = () => {
       console.log(`监听到订单取消，orderId: ${orderId}`);
       console.log('--------->OrderCancelled', orderId, timestamp)
 
-      const orderIdNum = orderId.toNumber();
-      const timestampNum = timestamp.toNumber();
+      const orderIdNum = Number(orderId)
+      const timestampNum = Number(timestamp);
 
       // 更新订单状态
       await Order.update(

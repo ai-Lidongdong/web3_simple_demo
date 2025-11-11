@@ -2,32 +2,29 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image } from 'antd';
 import { useSearchParams } from 'next/navigation';
-import { ethers } from "ethers";
-import { usePrivy } from '@privy-io/react-auth';
 import styles from "./page.module.css";
 import { useRouter } from 'next/navigation';
-import { COIN_CONTRACT_ADDRESS, MARKET_CONTRACT_ADDRESS } from '@/app/constants';
-import MyTokenABI from '../../artifacts/MyTokenModule#MyToken.json';
-import MarketABI from '../../artifacts/NFTMarketPlaceModule#NFTMarketPlace.json';
 import { fetchNFTMetadata, timestampToDate } from '../../../utils';
 import { fetchApi } from '../../axios/nft';
 import { OrderValuesRes, NFTMetadataRes } from '../nft';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
+import { useContracts } from '../../contexts/ContractContext';
 
 const NFTDetail = () => {
+  const  { myToken, NFTMarketPlace } = useContracts();
+  const { address } = useSelector((state: RootState) => state.wallet);
+    const { CONTRACTS_ADDRESSE } = useSelector((state: RootState) => state.network);
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { user } = usePrivy() as any;
-    const { address } = user?.wallet || {};
     const orderId = searchParams.get('orderId');
 
     const [nftInfo, setNftInfo] = useState<NFTMetadataRes>();
     const [orderInfo, setOrderInfo] = useState<OrderValuesRes>();
 
     useEffect(() => {
-        if (address) {
             getNfTInfo()
-        }
-    }, [address]);
+    }, []);
 
     // query single order
     const getNfTInfo = async () => {
@@ -41,21 +38,11 @@ const NFTDetail = () => {
     const onApprovePlatformTransferCoin = async () => {
         if (window.ethereum) {
             try {
-                // create ethereum provider and signer instance
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                const signer = await provider.getSigner();
-                // initialize contract instance
-                const contract = new ethers.Contract(
-                    COIN_CONTRACT_ADDRESS,
-                    MyTokenABI.abi,
-                    signer
-                );
-
-                const allowanceAmount = await contract.allowance(address, MARKET_CONTRACT_ADDRESS);
+                const allowanceAmount = await myToken?.allowance(address, CONTRACTS_ADDRESSE.MARKET_CONTRACT_ADDRESS);
                 const orderPrice = Number(orderInfo?.price);
                 if (!allowanceAmount || Number(allowanceAmount) < orderPrice) {
                     // don't have approve yet || approve amount is less than order price
-                    const tx = await contract.approve(MARKET_CONTRACT_ADDRESS, orderPrice);
+                    const tx = await myToken?.approve(CONTRACTS_ADDRESSE.MARKET_CONTRACT_ADDRESS, orderPrice);
                     await tx.wait();
                     return true
                 }
@@ -76,18 +63,9 @@ const NFTDetail = () => {
             if (!isApprove) {
                 return
             }
-            // have been approved, proceed to buy nft
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            // initialize contract instance
-            const contract = new ethers.Contract(
-                MARKET_CONTRACT_ADDRESS,
-                MarketABI.abi,
-                signer
-            );
-            await contract.buyNFT(orderId);
+            await NFTMarketPlace?.buyNFT(orderId);
             //  listen to OrderExecuted event, after order is executed, redirect to my nft page
-            contract.on("OrderExecuted", async (a, b, c) => {
+            NFTMarketPlace?.on("OrderExecuted", async (a, b, c) => {
                 router.replace(`/nft/myNft`)
             });
         }

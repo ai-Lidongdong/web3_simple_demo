@@ -2,7 +2,7 @@
 import styles from './page.module.css';
 import { useState, useEffect } from 'react';
 import { ethers, Contract } from "ethers";
-import { Button, Input, Image, Form, InputNumber, message } from 'antd';
+import { Button, Input, Image, Form, InputNumber } from 'antd';
 import { usePrivy } from '@privy-io/react-auth';
 import MyTokenAbi from '../../artifacts/MyTokenModule#MyToken.json';
 import MyNFTAbi from '../../artifacts/MyNFTModule#MyNFT.json';
@@ -69,7 +69,8 @@ const Main = () => {
                 // 将用户输入的铸造数量转换为以太坊单位（最小单位 Wei）
                 // const mintAmountInETH = ethers.parseUnits(JSON.stringify(amount), 'ether');
                 // 调用智能合约的 mint 方法，并传入铸造数量
-                await contract.mintToken(mintTokenAddress, BigInt(amount));
+                const hash = await contract.mintToken(mintTokenAddress, BigInt(amount));
+                console.log('---hash---', hash)
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
                 contract.on("Mint", async () => {
                     getBalance();
@@ -329,9 +330,7 @@ const Main = () => {
     }
     const onQueryOneOrder = async () => {
         if (!orderId) {
-            message.open({
-                content: '请输入订单号'
-            })
+            console.log('--请输入订单号', 请输入订单号)
             return;
         }
         // 创建以太坊提供者和签名者实例

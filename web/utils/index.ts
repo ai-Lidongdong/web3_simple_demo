@@ -17,6 +17,7 @@ export const getCookie = (name: any) => {
 }
 
 
+
 export const onUploadJsonToPinata = async (data: any) => {
   try {
     // check this data is object or not
@@ -40,7 +41,6 @@ export const onUploadJsonToPinata = async (data: any) => {
     const response = await request.json();
     return response?.data || {};
   } catch (error) {
-    console.log('upload error：', error);
     return null
   }
 }

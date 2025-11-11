@@ -2,45 +2,37 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image, Modal, Form, Input, Switch } from 'antd';
 import { useSearchParams } from 'next/navigation';
-import { ethers, Contract } from "ethers";
-import { usePrivy } from '@privy-io/react-auth';
-import { NFT_CONTRACT_ADDRESS, COIN_CONTRACT_ADDRESS, MARKET_CONTRACT_ADDRESS } from '@/app/constants';
-import MyNFTABI from '../../artifacts/MyNFTModule#MyNFT.json';
-import MarketABI from '../../artifacts/NFTMarketPlaceModule#NFTMarketPlace.json';
 import { fetchNFTMetadata } from '../../../utils'
 import styles from "./page.module.css";
 import type { NFTMetadataRes } from '../nft';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
+import { useContracts } from '../../contexts/ContractContext';
 const layout = {
     labelCol: { span: 6 },
     wrapperCol: { span: 16 },
 }
 
 const NFTDetail = () => {
+  const  { myNFT, NFTMarketPlace } = useContracts();
+  const { address } = useSelector((state: RootState) => state.wallet);
+  const { CONTRACTS_ADDRESSE } = useSelector((state: RootState) => state.network);
     const router = useRouter();
-    const { user } = usePrivy() as any;
     const searchParams = useSearchParams();
     const tokenId = searchParams.get('tokenId');
-    const { address } = user?.wallet || {};
     
     const [nftCid, setNftCid] = useState<string>('');
     const [nftInfo, setNftInfo] = useState<NFTMetadataRes>();
     const [openModal, setOpenModal] = useState<boolean>(false);
     
     useEffect(() => {
-        if (address) {
+        if (myNFT) {
             getNftDetail();
         }
-    }, [address])
+    }, [myNFT])
     const getNftDetail = async () => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const contract = new ethers.Contract(
-            NFT_CONTRACT_ADDRESS,
-            MyNFTABI.abi,
-            signer,
-        );
-        const cid = await contract.tokenURI(tokenId);
+        const cid = await myNFT?.tokenURI(tokenId);
         const metadata = await fetchNFTMetadata(cid);
         setNftInfo(metadata)
         setNftCid(cid)
@@ -61,31 +53,12 @@ const NFTDetail = () => {
         const { nftContract,tokenId, price, paymentToken } = event;
         if (window.ethereum) {
             try {
-                // 创建以太坊提供者和签名者实例
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                // 1. 连接钱包
-                // await provider.send("eth_requestAccounts", []); // 请求授权
-                const signer = await provider.getSigner();
-
-                // 2. 初始化合约实例
-                const NftContractInstance = new Contract(
-                    NFT_CONTRACT_ADDRESS,
-                    MyNFTABI.abi,
-                    signer
-                );
-                const isApproved = await NftContractInstance.isApprovedForAll(address, MARKET_CONTRACT_ADDRESS);
+                const isApproved = await myNFT?.isApprovedForAll(address, CONTRACTS_ADDRESSE?.MARKET_CONTRACT_ADDRESS);
                 if (!isApproved) {
                     // 授权：允许 operator 操作调用者的所有 NFT
-                    await NftContractInstance.setApprovalForAll(MARKET_CONTRACT_ADDRESS, true);
+                    await myNFT?.setApprovalForAll(CONTRACTS_ADDRESSE?.MARKET_CONTRACT_ADDRESS, true);
                 }
-
-                // 初始化智能合约实例
-                const contract = new ethers.Contract(
-                    MARKET_CONTRACT_ADDRESS,
-                    MarketABI.abi,
-                    signer
-                );
-                await contract.createOrderWithEscrow(
+                await NFTMarketPlace?.createOrderWithEscrow(
                     nftContract,
                     tokenId,
                     price,
@@ -93,7 +66,7 @@ const NFTDetail = () => {
                     nftCid
                 );
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
-                contract.on("OrderCreated", async (a, b, c, d, e) => {
+                NFTMarketPlace?.on("OrderCreated", async (a, b, c, d, e) => {
                     setOpenModal(false);
                     getNftDetail();
                     router.replace('/nft');
@@ -158,8 +131,8 @@ const NFTDetail = () => {
                                     name: nftInfo?.name,
                                     description: nftInfo?.description,
                                     tokenId,
-                                    nftContract: NFT_CONTRACT_ADDRESS,
-                                    paymentToken: COIN_CONTRACT_ADDRESS,
+                                    nftContract: CONTRACTS_ADDRESSE?.NFT_CONTRACT_ADDRESS,
+                                    paymentToken: CONTRACTS_ADDRESSE?.COIN_CONTRACT_ADDRESS,
                                     isEscrowed: true
 
                                 }}

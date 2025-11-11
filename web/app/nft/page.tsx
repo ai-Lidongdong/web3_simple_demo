@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import type { NftMetadataList } from './nft';
 import { fetchApi } from '../axios/nft';
 import styles from "./page.module.css";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
 // 定义动画变体
 const variants = {
   inactive: { y: 40, opacity: 0 },
@@ -14,8 +16,7 @@ const variants = {
 };
 
 const NFT = () => {
-  const { user } = usePrivy() as any;
-  const { address } = user?.wallet || {};
+  const { address } = useSelector((state: RootState) => state.wallet);
   const router = useRouter();
 
   const [nftList, setNftList] = useState<NftMetadataList[]>(); // all nft order list
@@ -59,6 +60,7 @@ const NFT = () => {
           nftList?.map((item: any) => {
             return (
               <motion.div
+                key={item?.tokenId}
                 className={styles.nft_item}
                 whileHover={{ scale: 1.02 }}
                 onHoverStart={() => setIsHovered(item?.tokenId.toString())}

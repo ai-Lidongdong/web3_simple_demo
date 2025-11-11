@@ -5,6 +5,9 @@
 :global(:where(.css-dev-only-do-not-override-ac2jek).ant-menu-dark) {
     background-color: #191E26 !important;
 }
+:global(.ant-menu-item-selected) {
+    background-color: #8127DA !important;
+}
 .wrap {
     color:#fff;
 }

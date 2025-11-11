@@ -1,6 +1,4 @@
 import axios from "axios";
-import { removeToken } from "../utils/auth";
-import { message } from "antd"; // 假设使用 Element Plus 提示组件（可替换为其他 UI 库）
 import { BACKEND_DEMAIN } from '../constants'
 // 创建 Axios 实例
 const service = axios.create({
@@ -31,24 +29,17 @@ service.interceptors.request.use(
     const requestKey = getRequestKey(config);
     // 如果已有相同请求的取消函数，执行取消
     if (cancelTokenSourceMap.has(requestKey)) {
-      const cancel = cancelTokenSourceMap.get(requestKey);
-      cancel("取消重复请求");
       cancelTokenSourceMap.delete(requestKey);
     }
     // 创建新的取消令牌
     const source = axios.CancelToken.source();
     config.cancelToken = source.token;
     cancelTokenSourceMap.set(requestKey, source.cancel);
-    console.log('--request-config', config);
 
     return config;
   },
   (error) => {
     // 请求发送失败（如参数错误）
-    // ElMessage.error("请求配置错误：" + error.message);
-    message.error({
-        content: '请求配置错误',
-    })
     return Promise.reject(error);
   }
 );
@@ -61,7 +52,6 @@ service.interceptors.response.use(
     cancelTokenSourceMap.delete(requestKey);
 
     // 2. 解析响应数据（假设后端统一返回 { code, data, message } 格式）
-    console.log('---response', response);
     const { status, data } = response;
 
     // 3. 根据业务状态码处理
@@ -71,9 +61,9 @@ service.interceptors.response.use(
     } else if (status === 401) {
       // 未授权（Token 过期或无效）：清除 Token 并跳转登录页
         //   ElMessage.error(message || "登录已过期，请重新登录");
-        message.error({
-            content: '登录已过期，请重新登录',
-        })
+        // message.error({
+        //     content: '登录已过期，请重新登录',
+        // })
       setTimeout(() => {
         window.location.href = "/login"; // 跳转到登录页
       }, 1000);
@@ -81,9 +71,9 @@ service.interceptors.response.use(
     } else {
       // 其他业务错误（如参数错误、服务器异常）
     //   ElMessage.error(message || "接口请求失败");
-    message.error({
-        content: '接口请求失败',
-    })
+    // message.error({
+    //     content: '接口请求失败',
+    // })
       return Promise.reject(new Error('业务错误'));
     }
   },
@@ -101,16 +91,16 @@ service.interceptors.response.use(
     } else if (!error.response) {
       // 无响应（网络中断或超时）
     //   ElMessage.error("网络异常，请检查网络连接");
-    message.error({
-        content: '网络异常，请检查网络连接',
-    })
+    // message.error({
+    //     content: '网络异常，请检查网络连接',
+    // })
     } else {
       // 有响应但状态码非 2xx（如 500 服务器错误）
       const status = error.response.status;
       const message = error.response.data?.message || `请求失败（${status}）`;
-    message.error({
-        content: `请求失败（${status})`,
-    })
+    // message.error({
+    //     content: `请求失败（${status})`,
+    // })
     //   ElMessage.error(message);
     }
 

@@ -1,14 +1,13 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Button, Image, Tabs } from 'antd';
-import { ethers, Contract } from "ethers";
 import { useRouter } from 'next/navigation';
-import { usePrivy } from '@privy-io/react-auth';
 import { motion } from "framer-motion";
-import { NFT_CONTRACT_ADDRESS } from '@/app/constants';
-import MyNFTABI from '../../artifacts/MyNFTModule#MyNFT.json';
 import type { NFTMetadataRes, NftMetadataList } from '../nft';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
 import styles from "./page.module.css";
+import { useContracts } from '@/app/contexts/ContractContext';
 import { fetchNFTMetadata } from '../../../utils';
 import { fetchApi } from '../../axios/nft';
 // 定义动画变体
@@ -18,51 +17,43 @@ const variants = {
 };
 
 const MyNft = () => {
+  const { address } = useSelector((state: RootState) => state.wallet);
+  const  { myNFT } = useContracts();
   const router = useRouter();
-  const { user } = usePrivy() as any;
-  const { address } = user?.wallet || {};
 
   const [activeTab, setActiveTab] = useState('1');
-  const [nftList, setNftList] = useState<NftMetadataList[]>();
   const [isHovered, setIsHovered] = useState<string>('');
   const [turnAllSelect, onTurnAllSelect] = useState<boolean>(false);
+  const [nftList, setNftList] = useState<NftMetadataList[]>(); // nft list
   const [selectedToken, setSelectedToken] = useState<string>('');
 
   const [myOrders, setMyOrders] = useState<NftMetadataList[]>();
   const [turnAllOrder, onTurnAllOrder] = useState<boolean>(false);
+
   useEffect(() => {
-    if (address) {
+    if (myNFT) {
       getMyAllNFTList();
-      getMyOrder();
     }
-  }, [address])
+      getMyOrder();
+  }, [myNFT])
 
   // get all nfts from my current connected wallet
   const getMyAllNFTList = async () => {
-    if (window.ethereum) {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      // create Contract instance
-      const contract = new ethers.Contract(
-        NFT_CONTRACT_ADDRESS,
-        MyNFTABI.abi,
-        signer,
-      );
       try {
         // query total nfts count
-        const userBalance = await contract?.balanceOf(address);
+        const userBalance = await myNFT?.balanceOf(address);
         if (typeof userBalance === 'bigint') {
           const balanceNum = Number(userBalance);
 
           // 2. batch query each tokenId of NFT
           const tokenIdList = [];
           for (let i = 0; i < balanceNum; i++) {
-            const tokenId = await contract.tokenOfOwnerByIndex(address, i);
+            const tokenId = await myNFT?.tokenOfOwnerByIndex(address, i);
             const tokenIdNum = Number(tokenId);
             tokenIdList.push(tokenIdNum);
           }
           const nfts = await Promise.all(tokenIdList.map(async (item: string | number) => {
-            const cid = await contract.tokenURI(item);
+            const cid = await myNFT?.tokenURI(item);
             const metadata: NFTMetadataRes = await fetchNFTMetadata(cid);
             return {
               tokenId: item,
@@ -74,30 +65,18 @@ const MyNft = () => {
       } catch (err) {
         console.error('err:', err)
       }
-    }
   }
 
   // get all of my orders in market
   const getMyOrder = async () => {
-    const result = await fetchApi(`/api/orders/seller/${address}`) as any;
+    const result =  await fetchApi(`/api/orders/seller/${address}`) as any;
     setMyOrders(result);
   }
+
   // burn nft
   const onBurnNft = async () => {
-    // 1. connect walllet
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts", []); // 请求授权
-    const signer = await provider.getSigner();
-
-    // 2. initialize contract instance
-    const nftContract = new Contract(
-      NFT_CONTRACT_ADDRESS,
-      MyNFTABI.abi,
-      signer
-    );
-
     // 3. mint nft to target address
-    const tx = await nftContract.burn(4);
+    const tx = await myNFT?.burn(4);
   }
 
   // opt nft
@@ -138,6 +117,7 @@ const MyNft = () => {
                     const { metadata, tokenId } = item;
                     return (
                       <motion.div
+                        key={tokenId}
                         className={`${styles.nft_item} ${turnAllSelect ? styles.nft_item_active : ''}`}
                         whileHover={{ scale: 1.02 }}
                         onHoverStart={() => setIsHovered(tokenId.toString())}
@@ -156,7 +136,7 @@ const MyNft = () => {
 
                         <div className={styles.nft_info}>
                           <div className={styles.top}>
-                            <span className={styles.single_line}>{metadata.name}哈哈哈好好</span>
+                            <span className={styles.single_line}>{metadata.name}</span>
                             <span className={styles.token_id}>#{tokenId}</span>
                           </div>
                           <div className={styles.detail}>
@@ -186,55 +166,60 @@ const MyNft = () => {
             label: 'MY ORDERS',
             key: '2',
             children: <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', margin: '10px 10px' }}>
-                {myOrders?.length ?
+              {
+                myOrders?.length ?
                   <>
-                    <img className={styles.items_total} onClick={() => {
-                      onTurnAllOrder(!turnAllOrder);
-                    }} src={`${turnAllOrder ? '/all_selected.png' : '/all_unselect.png'}`} />
-                    <span>TOTAL：{myOrders?.length} ITEMS</span>
-                  </> : null
-                }
-              </div>
-              <div className={styles.nft_list}>
-                {
-                  myOrders?.map((item: any) => {
-                    const { nftInfo, tokenId, orderId } = item;
-                    return (
-                      <motion.div
-                        className={`${styles.nft_item} ${turnAllOrder ? styles.nft_item_active : ''}`}
-                        whileHover={{ scale: 1.02 }}
-                        onHoverStart={() => setIsHovered(tokenId.toString())}
-                        onHoverEnd={() => setIsHovered('')}
-                        onClick={() => {
-                          router.push(`/nft/orderDetail?orderId=${orderId}&tokenId=${tokenId}`)
-                        }}>
-                        {turnAllOrder &&
-                          <img
-                            className={styles.select}
-                            onClick={(e) => { onSelectNft(e, item.tokenId) }}
-                            src={`${selectedToken === tokenId ? '/selected.png' : '/unselect.png'}`} />}
-                        <div className={styles.nft_img}>
-                          <Image preview={false} src={nftInfo?.image} />
-                        </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', margin: '10px 10px' }}>
+                      <img className={styles.items_total} onClick={() => {
+                        onTurnAllOrder(!turnAllOrder);
+                      }} src={`${turnAllOrder ? '/all_selected.png' : '/all_unselect.png'}`} />
+                      <span>TOTAL：{myOrders?.length} ITEMS</span>
+                    </div>
+                    <div className={styles.nft_list}>
+                      {
+                        myOrders?.map((item: any) => {
+                          const { nftInfo, tokenId, orderId } = item;
+                          return (
+                            <motion.div
+                              className={`${styles.nft_item} ${turnAllOrder ? styles.nft_item_active : ''}`}
+                              whileHover={{ scale: 1.02 }}
+                              onHoverStart={() => setIsHovered(tokenId.toString())}
+                              onHoverEnd={() => setIsHovered('')}
+                              onClick={() => {
+                                router.push(`/nft/orderDetail?orderId=${orderId}&tokenId=${tokenId}`)
+                              }}>
+                              {turnAllOrder &&
+                                <img
+                                  className={styles.select}
+                                  onClick={(e) => { onSelectNft(e, item.tokenId) }}
+                                  src={`${selectedToken === tokenId ? '/selected.png' : '/unselect.png'}`} />}
+                              <div className={styles.nft_img}>
+                                <Image preview={false} src={nftInfo?.image} />
+                              </div>
 
-                        <div className={styles.nft_info}>
-                          <div className={styles.top}>
-                            <span className={styles.single_line}>{nftInfo.name}哈哈哈好好</span>
-                            <span className={styles.token_id}>#{tokenId}</span>
-                          </div>
-                          <div className={styles.detail}>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )
-                  })
-                }
+                              <div className={styles.nft_info}>
+                                <div className={styles.top}>
+                                  <span className={styles.single_line}>{nftInfo.name}哈哈哈好好</span>
+                                  <span className={styles.token_id}>#{tokenId}</span>
+                                </div>
+                                <div className={styles.detail}>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )
+                        })
+                      }
 
-              </div>
-              <div className={styles.operate}>
-                {(turnAllOrder && turnAllOrder) ? <Button onClick={onBurnNft}>Remove NFT</Button> : null}
-              </div>
+                    </div>
+                    <div className={styles.operate}>
+                      {(turnAllOrder && turnAllOrder) ? <Button onClick={onBurnNft}>Remove NFT</Button> : null}
+                    </div>
+                  </> :
+                  <>
+                    <img src="/nothing.png" style={{ width: '400px', margin: '200px auto 20px'  }} />
+                    <div style={{color: '#fff', textAlign: 'center', fontSize: '24px'}}>No orders available</div>
+                  </>
+              }
             </>
           },
         ]}

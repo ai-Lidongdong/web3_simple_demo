@@ -48,7 +48,6 @@ router.get('/seller/:address', async (req, res) => {
       where: { seller: address, isActive: 1 },
       order: [['createdAt', 'DESC']]
     });
-    console.log('---ordersds', orders);
     const data = await Promise.all(orders.map(async (item) => {
       const metadata = await fetchNFTMetadata(item.cid);
       return {
@@ -66,7 +65,6 @@ router.get('/seller/:address', async (req, res) => {
 // 3. 获取订单详情
 router.get('/:orderId', async (req, res) => {
   try {
-    console.log('----req', req)
     const { orderId } = req.params;
     // 按 orderId 查询
     const order = await Order.findOne({

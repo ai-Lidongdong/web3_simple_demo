@@ -11,6 +11,26 @@ import Link from 'next/link';
 import { pathToMenuKey } from '../../utils';
 const { Sider, Content } = Layout;
 
+const menuItems = [
+  {
+    key: '/nft', // 对应原 Menu.Item 的 key
+    label: (
+      <Link href="/nft">
+        <ProductOutlined style={{ marginRight: 8 }} /> {/* 图标 */}
+        <span>HOME</span> {/* 文本 */}
+      </Link>
+    ),
+  },
+  {
+    key: '/nft/myNft', // 对应原 Menu.Item 的 key
+    label: (
+      <Link href="/nft/myNft">
+        <UserOutlined style={{ marginRight: 8 }} /> {/* 图标 */}
+        <span>MY NFT</span> {/* 文本 */}
+      </Link>
+    ),
+  },
+];
 const NFTList = ({ children }: Readonly<{
   children: React.ReactNode;
 }>) => {
@@ -34,24 +54,10 @@ const NFTList = ({ children }: Readonly<{
           <Menu
             theme="dark"
             mode="inline"
-            selectedKeys={pathToMenuKey(pathname)}
-            style={{ borderRight: 0 }} // 全屏高度，去除右侧边框
-          >
-            {/* nft list page */}
-            <Menu.Item key="/nft">
-              <Link href="/nft">
-                <ProductOutlined />
-                <span>HOME</span>
-              </Link>
-            </Menu.Item>
-            {/* my nft list */}
-            <Menu.Item key="/nft/myNft">
-              <Link href="/nft/myNft">
-                <UserOutlined />
-                <span>MY NFT</span>
-              </Link>
-            </Menu.Item>
-          </Menu>
+            selectedKeys={pathToMenuKey(pathname)} // 注意：selectedKeys 需是数组（原代码可能漏了数组包裹）
+            style={{ borderRight: 0 }}
+            items={menuItems} // 使用 items 配置
+          />
         </Sider>
         <Layout>
           <NFTHeader address={user?.wallet?.address} />
@@ -63,15 +69,15 @@ const NFTList = ({ children }: Readonly<{
             }}
           >
             <Spin spinning={false} size='large'>
-            <div
-              style={{
-                borderRadius: '12px',
-                height: '90vh',
-                background: '#191E26'
-              }}
-            >
-              {children}
-            </div>
+              <div
+                style={{
+                  borderRadius: '12px',
+                  height: '90vh',
+                  background: '#191E26'
+                }}
+              >
+                {children}
+              </div>
             </Spin>
           </Content>
         </Layout>

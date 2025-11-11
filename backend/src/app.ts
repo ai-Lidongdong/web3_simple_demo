@@ -30,7 +30,7 @@ const startServer = async () => {
     await syncHistoricalEvents();
 
     // 启动实时事件监听
-    // listenToEvents();
+    listenToEvents();
 
     // 启动 HTTP 服务器
     const PORT = process.env.PORT || 5000;

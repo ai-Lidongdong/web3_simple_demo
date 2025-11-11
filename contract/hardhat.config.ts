@@ -14,6 +14,16 @@ const SEPOLIA_URL = process.env.SEPOLIA_URL;
 const AMOY_URL = process.env.AMOY_URL;
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxMochaEthersPlugin],
+  typechain: {
+    // 生成的类型文件输出目录（建议放在前端可访问的路径，如 src/typechain-types）
+    outDir: "../web/app/typechain-types",
+    // 目标库（ethers-v5 或 ethers-v6 或 viem）
+    target: "ethers-v6",
+    // 可选：是否为每个合约生成单独的文件（默认 true）
+    // alwaysGenerateOverloads: false, // 不生成重载方法的重复类型
+    // 可选：自定义合约类型名称前缀（默认无）
+    // namePrefix: "I",
+  },
   solidity: {
     profiles: {
       default: {
