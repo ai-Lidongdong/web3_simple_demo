@@ -34,6 +34,7 @@
 .description {
     margin: 10px 0;
     color: #999;
+    word-wrap:break-word;
 }
 .nft_info {
     margin-top: 10px;

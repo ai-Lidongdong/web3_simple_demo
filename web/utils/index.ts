@@ -1,4 +1,5 @@
 
+import { ethers } from 'ethers';
 import { IPFS_GATEWAY } from '@/app/constants';
 
 // 函数：获取指定名称的 Cookie 值
@@ -106,4 +107,11 @@ export const timestampToDate = (timestamp: number) => {
 
   // 组合为YYYY-MM-DD HH:MM:SS格式
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+// 金额转换, wei => eth，且保留两位小数
+export const formatTokentoEth = (initToken: BigInt | number | string, decimals = 18) => {
+    const balanceA = ethers.formatUnits(initToken, decimals); // 把wei转换为eth单位
+    const formattedBalanceA = parseFloat(balanceA).toFixed(2);
+    return formattedBalanceA;
 }

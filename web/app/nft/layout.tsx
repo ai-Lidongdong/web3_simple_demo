@@ -60,7 +60,7 @@ const NFTList = ({ children }: Readonly<{
           />
         </Sider>
         <Layout>
-          <NFTHeader address={user?.wallet?.address} />
+          <NFTHeader />
           <Content
             style={{
               padding: 12,

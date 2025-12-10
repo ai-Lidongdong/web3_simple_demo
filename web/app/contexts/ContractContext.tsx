@@ -13,7 +13,11 @@ import {
     MyToken,
     MyToken__factory,
     MyNFT__factory,
-    NFTMarketPlace__factory
+    NFTMarketPlace__factory,
+    // DexPair,
+    // DexPair__factory,
+    // DexRouter,
+    // DexRouter__factory
 } from '../typechain-types';
 // 导入合约地址配置
 import { CONTRACTS_ADDRESSE } from '@/app/constants';
@@ -23,6 +27,8 @@ type ContractInstances = {
   myToken: MyToken | null; // MyToken 合约实例
   myNFT: MyNFT | null; // MyNFT 合约实例
   NFTMarketPlace: NFTMarketPlace | null;    //nft交易平台合约
+  // dexRouter: DexRouter | null;    //nft交易平台合约
+  // dexPair: DexPair | null;    //nft交易平台合约
   isLoading: boolean; // 实例是否正在创建
   error: string | null; // 实例创建错误
 };
@@ -49,6 +55,8 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     myToken: null,
     myNFT: null,
     NFTMarketPlace: null,
+    // dexRouter: null,
+    // dexPair: null,
     isLoading: true,
     error: null,
   });
@@ -67,6 +75,8 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         myToken: null,
         myNFT: null,
         NFTMarketPlace: null,
+        // dexRouter: null,
+        // dexPair: null,
         isLoading: false,
         error: '缺少 signer 或 chainId',
       });
@@ -84,16 +94,27 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         signer
       );
       const NFTMarketPlace = NFTMarketPlace__factory.connect(
-        CONTRACTS_ADDRESSE[chainId].NFT_CONTRACT_ADDRESS,
+        CONTRACTS_ADDRESSE[chainId].MARKET_CONTRACT_ADDRESS,
         signer
       );
-
-    console.log(`合约实例修改完成`);
+      // const dexRouter = DexRouter__factory.connect(
+      //   CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS,
+      //   signer
+      // );
+      // const dexPair = DexPair__factory.connect(
+      //   CONTRACTS_ADDRESSE[chainId].PAIR_CONTRACT_ADDRESS,
+      //   signer
+      // );
+      // console.log('---DexRouter', dexRouter)
+      // console.log('---DexPair', dexPair)
+    console.log(`NFT 合约实例修改完成`);
       // 更新实例状态
       setInstances({
         myToken,
         myNFT,
         NFTMarketPlace,
+        // dexRouter,
+        // dexPair,
         isLoading: false,
         error: null,
       });
@@ -104,6 +125,8 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         myToken: null,
         myNFT: null,
         NFTMarketPlace: null,
+        // dexRouter: null,
+        // dexPair: null,
         isLoading: false,
         error: `创建合约实例失败：${err.message}`,
       });

@@ -6,7 +6,7 @@
 import { ethers } from 'ethers'
 import { DeployContractOptions, FactoryOptions, HardhatEthersHelpers as HardhatEthersHelpersBase} from "@nomicfoundation/hardhat-ethers/types";
 
-import * as Contracts from "./index.js";
+import * as Contracts from "./index.ts";
 
 declare module "@nomicfoundation/hardhat-ethers/types" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
@@ -14,21 +14,61 @@ declare module "@nomicfoundation/hardhat-ethers/types" {
 getContractFactory(name: 'MyNFT', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MyNFT__factory>
 getContractFactory(name: 'MyToken', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MyToken__factory>
 getContractFactory(name: 'NFTMarketPlace', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.NFTMarketPlace__factory>
+getContractFactory(name: 'TokenA', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.TokenA__factory>
+getContractFactory(name: 'TokenB', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.TokenB__factory>
+getContractFactory(name: 'TokenC', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.TokenC__factory>
+getContractFactory(name: 'IUniswapV2Factory', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IUniswapV2Factory__factory>
+getContractFactory(name: 'IUniswapV2Pair', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IUniswapV2Pair__factory>
+getContractFactory(name: 'IUniswapV2Router', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IUniswapV2Router__factory>
+getContractFactory(name: 'UniswapV2Factory', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.UniswapV2Factory__factory>
+getContractFactory(name: 'IUniswapV2Callee', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IUniswapV2Callee__factory>
+getContractFactory(name: 'UniswapV2Pair', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.UniswapV2Pair__factory>
+getContractFactory(name: 'UniswapV2Router', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.UniswapV2Router__factory>
 
   getContractAt(name: 'Counter', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.Counter>
 getContractAt(name: 'MyNFT', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MyNFT>
 getContractAt(name: 'MyToken', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MyToken>
 getContractAt(name: 'NFTMarketPlace', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.NFTMarketPlace>
+getContractAt(name: 'TokenA', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.TokenA>
+getContractAt(name: 'TokenB', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.TokenB>
+getContractAt(name: 'TokenC', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.TokenC>
+getContractAt(name: 'IUniswapV2Factory', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IUniswapV2Factory>
+getContractAt(name: 'IUniswapV2Pair', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IUniswapV2Pair>
+getContractAt(name: 'IUniswapV2Router', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IUniswapV2Router>
+getContractAt(name: 'UniswapV2Factory', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.UniswapV2Factory>
+getContractAt(name: 'IUniswapV2Callee', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IUniswapV2Callee>
+getContractAt(name: 'UniswapV2Pair', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.UniswapV2Pair>
+getContractAt(name: 'UniswapV2Router', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.UniswapV2Router>
 
   deployContract(name: 'Counter', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Counter>
 deployContract(name: 'MyNFT', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MyNFT>
 deployContract(name: 'MyToken', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MyToken>
 deployContract(name: 'NFTMarketPlace', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.NFTMarketPlace>
+deployContract(name: 'TokenA', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TokenA>
+deployContract(name: 'TokenB', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TokenB>
+deployContract(name: 'TokenC', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TokenC>
+deployContract(name: 'IUniswapV2Factory', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Factory>
+deployContract(name: 'IUniswapV2Pair', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Pair>
+deployContract(name: 'IUniswapV2Router', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Router>
+deployContract(name: 'UniswapV2Factory', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.UniswapV2Factory>
+deployContract(name: 'IUniswapV2Callee', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Callee>
+deployContract(name: 'UniswapV2Pair', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.UniswapV2Pair>
+deployContract(name: 'UniswapV2Router', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.UniswapV2Router>
 
   deployContract(name: 'Counter', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Counter>
 deployContract(name: 'MyNFT', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MyNFT>
 deployContract(name: 'MyToken', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MyToken>
 deployContract(name: 'NFTMarketPlace', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.NFTMarketPlace>
+deployContract(name: 'TokenA', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TokenA>
+deployContract(name: 'TokenB', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TokenB>
+deployContract(name: 'TokenC', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TokenC>
+deployContract(name: 'IUniswapV2Factory', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Factory>
+deployContract(name: 'IUniswapV2Pair', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Pair>
+deployContract(name: 'IUniswapV2Router', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Router>
+deployContract(name: 'UniswapV2Factory', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.UniswapV2Factory>
+deployContract(name: 'IUniswapV2Callee', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUniswapV2Callee>
+deployContract(name: 'UniswapV2Pair', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.UniswapV2Pair>
+deployContract(name: 'UniswapV2Router', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.UniswapV2Router>
 
     // default types
     getContractFactory(

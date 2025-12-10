@@ -1,0 +1,17 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "avoid-unused-variables": "error",
+    "explicit-types": "error",
+    "function-visibility": ["error", { "ignoreConstructors": true }],
+    "no-implicit-conversion": "error",
+    "naming-convention": [
+      "error",
+      { "type": "contract", "format": "PascalCase" },
+      { "type": "function", "format": "camelCase" },
+      { "type": "variable", "format": "camelCase", "modifiers": ["public"] }
+    ],
+    "quotes": ["error", "double"],
+    "indent": ["error", 4]
+  }
+}

@@ -39,7 +39,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
   // 初始化：检测 MetaMask 已连接状态
   const initMetaMask = async () => {
-    console.log('----初始化------------------------》')
     setIsLoading(true);
     try {
       if (!isMetaMaskInstalled()) {

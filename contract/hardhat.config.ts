@@ -2,7 +2,6 @@ import type { HardhatUserConfig } from "hardhat/config";
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import * as envEncConfig from "@chainlink/env-enc";
 import "@nomicfoundation/hardhat-ethers";
-import "@nomicfoundation/hardhat-ethers";
 
 // export default {
 //   plugins: [hardhatEthers],
@@ -32,6 +31,7 @@ const config: HardhatUserConfig = {
       production: {
         version: "0.8.28",
         settings: {
+          viaIR: true, // 启用 IR 优化器
           optimizer: {
             enabled: true,
             runs: 200,
@@ -41,12 +41,20 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    localhost: {
+      chainId: 31337,
+      url: "http://127.0.0.1:8545",
+      accounts: ["0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"],
+      mining: {
+        auto: false, // 禁用自动挖矿
+        interval: [100, 300] // 每100-300ms自动挖矿一次
+      }
+    },
     sepolia: {
       type: "http",
       chainType: "l1",
       url: SEPOLIA_URL!,
       accounts: [PRIVATE_KEY!],
-
     },
     amoy: {
       type: "http",

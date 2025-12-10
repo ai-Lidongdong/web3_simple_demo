@@ -15,8 +15,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-
   return (
     <html lang="en">
       <body>
@@ -31,14 +29,19 @@ export default function RootLayout({
                 theme: 'light',
                 accentColor: '#6366f1',
               },
-              // 关键修复：禁用 WalletConnect（避免无 Project ID 导致的请求失败）
-              walletConnect: {
-                enabled: false,
-              }
+              walletConnectCloudProjectId: '',
+              externalWallets: {
+                walletConnect: {
+                  enabled: false,
+                },
+                disableAllExternalWallets: false
+              },
+              
             }}
+            
           >
               <CombinedProvider>
-                <InitialLayout />
+                {/* <InitialLayout /> */}
                 {children}
                 </CombinedProvider>
           </PrivyProvider>

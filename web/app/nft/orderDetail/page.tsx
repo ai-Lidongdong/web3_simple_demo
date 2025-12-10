@@ -11,6 +11,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
 import { useContracts } from '../../contexts/ContractContext';
 
+// import { ethers, Contract } from "ethers";
+
 const NFTDetail = () => {
   const  { myToken, NFTMarketPlace } = useContracts();
   const { address } = useSelector((state: RootState) => state.wallet);
@@ -57,12 +59,25 @@ const NFTDetail = () => {
     // buy nft
     const onBuyNFT = async () => {
         const { orderId } = orderInfo || {};
+        console.log('---orderId', orderId)
         if (window.ethereum) {
             // create ethereum provider and signer instance
             const isApprove = await onApprovePlatformTransferCoin();
             if (!isApprove) {
                 return
             }
+            console.log('----NFTMarketPlace', NFTMarketPlace)
+                            // // 1. 连接钱包
+                            // const provider = new ethers.BrowserProvider(window.ethereum);
+                            // await provider.send("eth_requestAccounts", []); // 请求授权
+                            // const signer = await provider.getSigner();
+            
+                            // // 2. 初始化合约实例
+                            // const nftContract = new Contract(
+                            //     '',
+                            //     MyNFTAbi.abi,
+                            //     signer
+                            // );
             await NFTMarketPlace?.buyNFT(orderId);
             //  listen to OrderExecuted event, after order is executed, redirect to my nft page
             NFTMarketPlace?.on("OrderExecuted", async (a, b, c) => {
@@ -115,6 +130,10 @@ const NFTDetail = () => {
                 <div className={styles.order_item}>
                     <div>Create Date</div>
                     <div>{timestampToDate(orderInfo?.createdAt)}</div>
+                </div>
+                <div className={styles.order_item}>
+                    <div>Seller</div>
+                    <div>{orderInfo?.seller}</div>
                 </div>
             </div>
             <Button className={styles.sale_but} onClick={onBuyNFT}>Buy</Button>

@@ -8,7 +8,14 @@ export interface NetworkState {
   CONTRACTS_ADDRESSE: {
     NFT_CONTRACT_ADDRESS: string,
     COIN_CONTRACT_ADDRESS: string,
-    MARKET_CONTRACT_ADDRESS: string
+    MARKET_CONTRACT_ADDRESS: string,
+
+    FACTORY_CONTRACT_ADDRESS: string,
+    ROUTER_CONTRACT_ADDRESS: string,
+    PAIR_CONTRACT_ADDRESS: string,
+    TOKENA_CONTRACT_ADDRESS: string,
+    TOKENB_CONTRACT_ADDRESS: string,
+    TOKENC_CONTRACT_ADDRESS: string,
   };
   isLoading: boolean; // 网络状态是否正在加载
   error: string | null; // 网络错误信息（如切换链失败）
@@ -20,7 +27,14 @@ const initialState: NetworkState = {
   CONTRACTS_ADDRESSE: {
     NFT_CONTRACT_ADDRESS: '',
     COIN_CONTRACT_ADDRESS: '',
-    MARKET_CONTRACT_ADDRESS: ''
+    MARKET_CONTRACT_ADDRESS: '',
+
+    FACTORY_CONTRACT_ADDRESS: '',
+    ROUTER_CONTRACT_ADDRESS: '',
+    PAIR_CONTRACT_ADDRESS: '',
+    TOKENA_CONTRACT_ADDRESS: '',
+    TOKENB_CONTRACT_ADDRESS: '',
+    TOKENC_CONTRACT_ADDRESS: '',
   },
   isLoading: true,
   error: null,
@@ -52,6 +66,18 @@ const networkSlice = createSlice({
     // 重置网络状态
     resetNetwork: (state) => {
       state.chainId = '';
+      state.CONTRACTS_ADDRESSE = {
+        NFT_CONTRACT_ADDRESS: '',
+        COIN_CONTRACT_ADDRESS: '',
+        MARKET_CONTRACT_ADDRESS: '',
+
+        FACTORY_CONTRACT_ADDRESS: '',
+        ROUTER_CONTRACT_ADDRESS: '',
+        PAIR_CONTRACT_ADDRESS: '',
+        TOKENA_CONTRACT_ADDRESS: '',
+        TOKENB_CONTRACT_ADDRESS: '',
+        TOKENC_CONTRACT_ADDRESS: '',
+      },
       state.isLoading = false;
       state.error = null;
     },

@@ -21,7 +21,6 @@ const Logout = () => {
     const [balance, setBalance] = useState<string | null>(null);    // balance of the user in this contract
 
     useEffect(() => {
-        console.log('---余额查询')
         if (myToken) {
             getBalance();
         }
@@ -29,12 +28,9 @@ const Logout = () => {
 
     const getBalance = async () => {
             try {
-        console.log('---myToken', myToken)
-        console.group('0--address', address)
                 const userBalance = await myToken?.balanceOf(address);
                 const balance = ethers.formatUnits(userBalance, 18); // 把wei转换为eth单位
                 const formattedBalance = parseFloat(balance).toFixed(2);
-                console.log('--formattedBalance', formattedBalance)
                 setBalance(formattedBalance);
             } catch (err) {
                 console.error('err:', err)
