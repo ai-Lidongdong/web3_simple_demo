@@ -138,7 +138,7 @@ decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
     
     mint: TypedContractMethod<
       [to: AddressLike, ],
-      [[bigint, bigint] & {liquidity: bigint, step: bigint }],
+      [bigint],
       'nonpayable'
     >
     
@@ -221,7 +221,7 @@ getFunction(nameOrSignature: 'getReserves'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'mint'): TypedContractMethod<
       [to: AddressLike, ],
-      [[bigint, bigint] & {liquidity: bigint, step: bigint }],
+      [bigint],
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'swap'): TypedContractMethod<

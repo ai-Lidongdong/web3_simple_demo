@@ -17,7 +17,7 @@ interface IUniswapV2Pair is IERC20 {
     // 兑换函数（输入代币，输出到指定地址）
     function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes calldata data) external;
     // 添加流动性（发行LP代币）
-    function mint(address to) external returns (uint256 liquidity, uint step);
+    function mint(address to) external returns (uint256 liquidity);
     // 移除流动性（销毁LP代币）
     function burn(address to) external returns (uint256 amount0, uint256 amount1);
     

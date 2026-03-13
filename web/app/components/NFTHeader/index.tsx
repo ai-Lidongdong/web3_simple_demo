@@ -28,9 +28,10 @@ const Logout = () => {
 
     const getBalance = async () => {
             try {
-                const userBalance = await myToken?.balanceOf(address);
+                const userBalance = await myToken?.balanceOf(address) || "0";
                 const balance = ethers.formatUnits(userBalance, 18); // 把wei转换为eth单位
                 const formattedBalance = parseFloat(balance).toFixed(2);
+                console.log('formattedBalance', formattedBalance)
                 setBalance(formattedBalance);
             } catch (err) {
                 console.error('err:', err)

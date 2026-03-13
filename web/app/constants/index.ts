@@ -36,13 +36,13 @@ const CONTRACTS_ADDRESSE: any = {
         COIN_CONTRACT_ADDRESS: '0x9519FC0D44003Be8277F60B7b56511Fa4fDacE6D',
         MARKET_CONTRACT_ADDRESS: '0xA205986041e1f6BcD9461D21d52E2aa4A2eD5B0C',
 
-        TOKENA_CONTRACT_ADDRESS: '0x5FbDB2315678afecb367f032d93F642f64180aa3', //DEX  TokenA 地址
-        TOKENB_CONTRACT_ADDRESS: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512', //DEX  TokenB 地址
-        TOKENC_CONTRACT_ADDRESS: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0', //DEX  TokenC 地址
+        TOKENA_CONTRACT_ADDRESS: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', //DEX  TokenA 地址
+        TOKENB_CONTRACT_ADDRESS: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e', //DEX  TokenB 地址
+        TOKENC_CONTRACT_ADDRESS: '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0', //DEX  TokenC 地址
 
-        FACTORY_CONTRACT_ADDRESS: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-        ROUTER_CONTRACT_ADDRESS: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', // DEX Router 地址
-        PAIR_CONTRACT_ADDRESS: '0x47Ee406ceE13aC5815aBA3dB095143E6671Cf6c5', //DEX  Pair 地址
+        FACTORY_CONTRACT_ADDRESS: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
+        PAIR_CONTRACT_ADDRESS: '0x9A676e781A523b5d0C0e43731313A708CB607508', //DEX  Pair 地址
+        ROUTER_CONTRACT_ADDRESS: '0x0B306BF915C4d645ff596e518fAf3F9669b97016', // DEX Router 地址
     }
 }
 
@@ -52,8 +52,14 @@ const pairABI = [
     "function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)",
     "function totalSupply() external view returns (uint256)",
     "function balanceOf(address) public view returns (uint256)",
+    "function approve(address, uint256) public virtual returns (bool)"
 ];
 
+    // function approve(address spender, uint256 value) public virtual returns (bool) {
+    //     address owner = _msgSender();
+    //     _approve(owner, spender, value);
+    //     return true;
+    // }
 export {
     IPFS_GATEWAY,
     RPC_URL,

@@ -1,6 +1,6 @@
 'use client'
-import React, { useState, useEffect } from 'react';
-import { Button, Image } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Image, Spin } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import styles from "./page.module.css";
 import { useRouter } from 'next/navigation';
@@ -11,30 +11,31 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
 import { useContracts } from '../../contexts/ContractContext';
 
-// import { ethers, Contract } from "ethers";
-
 const NFTDetail = () => {
-  const  { myToken, NFTMarketPlace } = useContracts();
-  const { address } = useSelector((state: RootState) => state.wallet);
+    const { myToken, NFTMarketPlace } = useContracts();
+    const { address } = useSelector((state: RootState) => state.wallet);
     const { CONTRACTS_ADDRESSE } = useSelector((state: RootState) => state.network);
     const searchParams = useSearchParams();
     const router = useRouter();
     const orderId = searchParams.get('orderId');
 
     const [nftInfo, setNftInfo] = useState<NFTMetadataRes>();
+    const [isLoading, setIsLoading] = useState(false)
     const [orderInfo, setOrderInfo] = useState<OrderValuesRes>();
 
-    useEffect(() => {
-            getNfTInfo()
-    }, []);
-
-    // query single order
-    const getNfTInfo = async () => {
+    const getNfTInfo = useCallback(async () => {
+        if (!orderId) {
+            return;
+        }
         const result = await fetchApi(`/api/orders/${orderId}`) as any;
         const metadata = await fetchNFTMetadata(result?.cid);
-        setNftInfo(metadata)
+        setNftInfo(metadata);
         setOrderInfo(result);
-    }
+    }, [orderId]);
+
+    useEffect(() => {
+        getNfTInfo();
+    }, [getNfTInfo]);
 
     //  approve the platform to transfer coin on behalf of user
     const onApprovePlatformTransferCoin = async () => {
@@ -43,8 +44,10 @@ const NFTDetail = () => {
                 const allowanceAmount = await myToken?.allowance(address, CONTRACTS_ADDRESSE.MARKET_CONTRACT_ADDRESS);
                 const orderPrice = Number(orderInfo?.price);
                 if (!allowanceAmount || Number(allowanceAmount) < orderPrice) {
-                    // don't have approve yet || approve amount is less than order price
                     const tx = await myToken?.approve(CONTRACTS_ADDRESSE.MARKET_CONTRACT_ADDRESS, orderPrice);
+                    if (!tx) {
+                        return false;
+                    }
                     await tx.wait();
                     return true
                 }
@@ -57,87 +60,100 @@ const NFTDetail = () => {
     }
 
     // buy nft
-    const onBuyNFT = async () => {
+    const onCancelOrder = async () => { // cancelOrder
         const { orderId } = orderInfo || {};
-        console.log('---orderId', orderId)
         if (window.ethereum) {
             // create ethereum provider and signer instance
             const isApprove = await onApprovePlatformTransferCoin();
             if (!isApprove) {
                 return
             }
-            console.log('----NFTMarketPlace', NFTMarketPlace)
-                            // // 1. 连接钱包
-                            // const provider = new ethers.BrowserProvider(window.ethereum);
-                            // await provider.send("eth_requestAccounts", []); // 请求授权
-                            // const signer = await provider.getSigner();
-            
-                            // // 2. 初始化合约实例
-                            // const nftContract = new Contract(
-                            //     '',
-                            //     MyNFTAbi.abi,
-                            //     signer
-                            // );
-            await NFTMarketPlace?.buyNFT(orderId);
-            //  listen to OrderExecuted event, after order is executed, redirect to my nft page
-            NFTMarketPlace?.on("OrderExecuted", async (a, b, c) => {
+            if (!orderId) {
+                return;
+            }
+            // 1. 连接钱包
+            await NFTMarketPlace?.cancelOrder(orderId);
+            (NFTMarketPlace as any)?.on("OrderCancelled", async (a: any, b: any) => {
+                console.log('22', a, b)
                 router.replace(`/nft/myNft`)
+            });
+        }
+    }
+    const onBuyNft = async () => {
+        const { orderId } = orderInfo || {} as any;
+        if (window.ethereum) {
+            setIsLoading(true)
+            const isApprove = await onApprovePlatformTransferCoin();
+            if (!isApprove || !orderId) {
+                setIsLoading(false)
+                return
+            }
+            await NFTMarketPlace?.buyNFT(orderId);
+            // 监听合约的 Mint 事件，铸造完成后刷新余额
+            (NFTMarketPlace as any)?.on("OrderExecuted", async () => {
+                setIsLoading(false)
+                router.replace('/nft/myNft')
             });
         }
     }
 
     return (
-        <div className={styles.wrap}>
-            <div className={styles.img_box}>
-                <Image
-                    className={styles.nft_img}
-                    alt=''
-                    width={200}
-                    height={280}
-                    src={nftInfo?.image}
-                />
-            </div>
-            <div className={styles.name}>
-                <div>{nftInfo?.name}</div>
-                <div>{orderInfo?.isEscrowed ? 'isEscrowed' : ''}</div>
-            </div>
-            <div className={styles.description}>{nftInfo?.description}</div>
-            <div className={styles.external_url}>
-                <a href={nftInfo?.external_url}>external url</a>
-            </div>
-            <div className={styles.nft_info}>
-                <div className={styles.traits}>Trait type</div>
+        <Spin spinning={isLoading}>
+            <div className={styles.wrap}>
+                <div className={styles.img_box}>
+                    <Image
+                        className={styles.nft_img}
+                        alt=''
+                        width={200}
+                        height={280}
+                        src={nftInfo?.image}
+                    />
+                </div>
+                <div className={styles.name}>
+                    <div>{nftInfo?.name}</div>
+                    <div>{orderInfo?.isEscrowed ? 'isEscrowed' : ''}</div>
+                </div>
+                <div className={styles.description}>{nftInfo?.description}</div>
+                <div className={styles.external_url}>
+                    <a href={nftInfo?.external_url}>external url</a>
+                </div>
+                <div className={styles.nft_info}>
+                    <div className={styles.traits}>Trait type</div>
+                    {
+                        nftInfo?.attributes?.map((item: {
+                            trait_type: string;
+                            value: string | number;
+                        }, index: number) => {
+                            return (
+                                <div className={styles.nft_item} key={`${item.trait_type}-${index}`}>
+                                    <div className={styles.key}>{item?.trait_type}</div>
+                                    <div className={styles.value}>{item?.value}</div>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+                <div className={styles.order_detail}>
+                    <h2>Order Detail</h2>
+                    <div className={styles.order_item}>
+                        <div>Price</div>
+                        <div>{orderInfo?.price} ETH</div>
+                    </div>
+                    <div className={styles.order_item}>
+                        <div>Create Date</div>
+                        <div>{orderInfo?.createdAt ? timestampToDate(orderInfo.createdAt) : ''}</div>
+                    </div>
+                    <div className={styles.order_item}>
+                        <div>Seller</div>
+                        <div>{orderInfo?.seller}</div>
+                    </div>
+                </div>
                 {
-                    nftInfo?.attributes?.map((item: {
-                        trait_type: string;
-                        value: string | number;
-                    }, index: number) => {
-                        return (
-                            <div className={styles.nft_item} key={`${item.trait_type}-${index}`}>
-                                <div className={styles.key}>{item?.trait_type}</div>
-                                <div className={styles.value}>{item?.value}</div>
-                            </div>
-                        )
-                    })
+                    orderInfo?.seller === 'address' ? <Button className={styles.sale_but} onClick={onCancelOrder}>Cancel Order</Button> :
+                        <Button className={styles.sale_but} onClick={onBuyNft}>Buy Nft</Button>
                 }
             </div>
-            <div className={styles.order_detail}>
-                <h2>Order Detail</h2>
-                <div className={styles.order_item}>
-                    <div>Price</div>
-                    <div>{orderInfo?.price} ETH</div>
-                </div>
-                <div className={styles.order_item}>
-                    <div>Create Date</div>
-                    <div>{timestampToDate(orderInfo?.createdAt)}</div>
-                </div>
-                <div className={styles.order_item}>
-                    <div>Seller</div>
-                    <div>{orderInfo?.seller}</div>
-                </div>
-            </div>
-            <Button className={styles.sale_but} onClick={onBuyNFT}>Buy</Button>
-        </div>
+        </Spin>
     );
 }
 export default NFTDetail;

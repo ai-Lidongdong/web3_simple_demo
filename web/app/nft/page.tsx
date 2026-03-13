@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Button, Image } from 'antd';
+import { Button, Image, Spin} from 'antd';
 import { useRouter } from 'next/navigation';
-import { usePrivy } from '@privy-io/react-auth';
+import NextImage from 'next/image';
 import { motion } from "framer-motion";
 import type { NftMetadataList } from './nft';
 import { fetchApi } from '../axios/nft';
@@ -31,7 +31,7 @@ const NFT = () => {
   // get the nft list in the nft trade platform
   const getNFTList = async () => {
     try {
-      const { resultObj  } = await fetchApi('/api/orders/active', {
+      const { resultObj } = await fetchApi('/api/orders/active', {
         page: 1,
         limit: 10,
       }) as any;
@@ -49,15 +49,16 @@ const NFT = () => {
     <div className={styles.wrap}>
       <div className={styles.opt_list}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>TOTAL：{nftList?.length} ITEMS</span>
+          <span>TOTAL：{nftList?.length || 0} ITEMS</span>
         </div>
         <div>
           <Button style={{ background: '#8127DA', border: 'none', color: '#fff' }} onClick={() => { router.push('/nft/addNft') }}>Add NFT</Button>
         </div>
       </div>
+      <Spin spinning={!nftList}>
       <div className={styles.nft_list}>
         {
-          nftList?.map((item: any) => {
+          nftList?.length ? nftList?.map((item: any) => {
             return (
               <motion.div
                 key={item?.tokenId}
@@ -91,12 +92,16 @@ const NFT = () => {
                 </motion.div>
               </motion.div>
             )
-          })
+          }) :
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <NextImage src="/nothing.png" alt="no orders" width={400} height={400} style={{ width: '400px', margin: '200px auto 20px' }} />
+              <div style={{ color: '#fff', textAlign: 'center', fontSize: '24px' }}>No NFTS</div>
+            </div>
         }
 
       </div>
-      <div className={styles.operate}>
-      </div>
+      </Spin>
     </div>
   );
 }

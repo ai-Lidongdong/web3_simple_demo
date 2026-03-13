@@ -77,7 +77,6 @@ export const syncHistoricalEvents = async () => {
         isActive,
         isEscrowed,    // 是否托管（布尔值）
       } = event.args;
-  console.log('---event.args', event.args)
 
       // 转换类型（适配 MySQL 表结构）
       const orderIdNum = orderId.toString();
@@ -173,7 +172,6 @@ export const syncHistoricalEvents = async () => {
 // 4. 监听实时事件（新事件发生时实时同步到数据库）
 export const listenToEvents = () => {
   console.log('启动实时事件监听...');
-
   // 4.1 监听新订单创建（OrderCreated）
   marketplaceContract.on('OrderCreated', async (
     orderId,
@@ -188,7 +186,8 @@ export const listenToEvents = () => {
   ) => {
     try {
       console.log(`监听到新订单创建，orderId: ${orderId}`);
-      console.log('------订单信息------》', orderId,
+      console.log('------订单信息------》',
+        orderId,
         seller,
         nftContract,
         tokenId,

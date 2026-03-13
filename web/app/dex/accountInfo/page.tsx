@@ -7,6 +7,7 @@ import { RootState } from '@/app/store';
 import { formatTokentoEth } from "@/utils";
 import { useContracts } from '@/app/contexts/DexContractContext';
 import { pairABI } from '../../constants';
+import pairAbbi from '../../constants/artifacts/UniswapV2PairModule#UniswapV2Pair.json'
 
 export default function Home() {
     const {
@@ -27,6 +28,10 @@ export default function Home() {
     const [mintTokenValue, setMintTokenValue] = useState<any>();
 
     const [pairList, setPairList] = useState<any>([]);
+
+
+    const [removeAmount, setRemoveAmount] = useState('');
+    const [removeLoading, setRemoveLoading] = useState(false);
 
     // 初始化合约
     useEffect(() => {
@@ -62,7 +67,6 @@ export default function Home() {
         ]);
         const { reserve0, reserve1, blockTimestampLast } = await pairContract.getReserves();
         const totalSupply = await pairContract.totalSupply();
-        console.log('--reserve1', Number(reserve1))
         const totalNum = ethers.formatUnits(totalSupply, 18);
 
         const myBalance = await pairContract.balanceOf(address);
@@ -81,16 +85,13 @@ export default function Home() {
 
     // 获取所有交易对
     const getAllPair = async () => {
-        console.log('--查询交易对')
         let list = [];
         const pairLength = await uniswapV2Factory?.allPairsLength();
-        console.log('--pairLength', pairLength)
         for (let i = 0; i < Number(pairLength); i++) {
             const pairAddress = await uniswapV2Factory?.allPairs(i);
             const pairObj = await queryPairContractInfo(pairAddress)
             list.push(pairObj)
         }
-        console.log('-list', list)
         setPairList(list)
     }
     // 连接钱包
@@ -162,6 +163,62 @@ export default function Home() {
         //     });
         // }
     }
+    // 执行移除流动性
+    const handleRemoveLiquidity = async () => {
+        const pairInfo = pairList[0]
+        if (!uniswapV2Router || !pairInfo.pairAddress || !pairInfo.myLpBalance) return;
+
+        try {
+            setRemoveLoading(true);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const pairContract = new ethers.Contract(pairInfo.pairAddress, pairAbbi.abi, signer);
+            const liquidity = ethers.parseUnits(pairInfo.myLpBalance, 18); // LP代币通常是18位小数
+
+            // 批准LP代币转账
+            console.log('---CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS', CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS)
+            const approveResult =  await pairContract.approve(CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS, liquidity);
+
+
+                // await tokenAContract?.approve(CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS, amountA);
+            // 计算最小接收数量（5%滑点）
+            const [reserve0, reserve1] = await pairContract.getReserves();
+            const totalSupply = await pairContract.totalSupply();
+            const amount0Min = liquidity * reserve0 / totalSupply * BigInt(95) / BigInt(100);
+            const amount1Min = liquidity * reserve1 / totalSupply * BigInt(95) / BigInt(100);
+            const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+
+            // 执行移除流动性
+            console.log('---------移出流动性', 
+                pairInfo.tokenAAddress,
+                pairInfo.tokenBAddress,
+                liquidity,
+                amount0Min,
+                amount1Min,
+                address,
+                deadline)
+            const tx = await uniswapV2Router.removeLiquidity(
+                pairInfo.tokenAAddress,
+                pairInfo.tokenBAddress,
+                liquidity,
+                amount0Min,
+                amount1Min,
+                address,
+                deadline
+            );
+            await tx.wait();
+            uniswapV2Router?.on("RemoveEvent", async (step, a, b) => {
+                console.log('---Increment',
+                    step, a, b)
+            });
+            alert('移除流动性成功！');
+        } catch (err) {
+            console.error('移除流动性失败:', err);
+            alert('移除流动性失败，请检查LP余额和授权');
+        } finally {
+            setRemoveLoading(false);
+        }
+    };
 
     return (
         <header style={{ padding: '40px 0' }}>
@@ -205,6 +262,7 @@ export default function Home() {
                                 <div>token2地址：{item?.tokenBAddress}</div>
                                 <div>token2余额：{item?.tokenBBalance}</div>
                             </div>
+                            <Button onClick={handleRemoveLiquidity}>赎回代币</Button>
                         </div>
                     )
                 }) : '暂无交易对信息'

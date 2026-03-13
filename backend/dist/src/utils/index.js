@@ -5,22 +5,17 @@ dotEnvConfig.config();
 export const fetchNFTMetadata = async (tokenUri) => {
     const { IPFS_GATEWAY } = process.env;
     try {
-        console.log('----IPFS_GATEWAY', IPFS_GATEWAY);
         // 处理 IPFS 路径（如 ipfs://Qm... 转换为 http 链接）
         const url = tokenUri.startsWith('ipfs://')
             ? `${IPFS_GATEWAY}${tokenUri.slice(7)}`
             : tokenUri;
-        console.log('----url', url);
         const response = await fetch(url);
-        console.log('---response', response);
         // if (!response.ok) throw new Error('元数据加载失败');
         const metadata = await response.json();
-        console.log('---metadata', metadata);
         // 处理图片的 IPFS 路径
         if (metadata.image?.startsWith('ipfs://')) {
             metadata.image = `${IPFS_GATEWAY}${metadata.image.slice(7)}`;
         }
-        console.log('-111--metadata', metadata);
         return metadata;
     }
     catch (err) {

@@ -11,10 +11,16 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard, IUniswapV2Pair {
     address public override token1;
     mapping(address account => uint256) private _balances;
     uint256 private _totalSupply;
+    uint public constant MINIMUM_LIQUIDITY = 10**3;
 
     uint112 private reserve0; // 储备量（token0）
     uint112 private reserve1; // 储备量（token1）
     uint32 private blockTimestampLast; // 最后更新时间（防闪电贷攻击）
+    event addLiquidityFinish(
+        uint256 liquidity,
+        uint balance0,
+        uint balance1
+    );
 
     // 确保代币转移成功
     using SafeERC20 for IERC20;
@@ -40,7 +46,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard, IUniswapV2Pair {
         return _balances[account];
     }
     // 更新储备量（核心安全逻辑：防止闪电贷操纵价格）
-    function update(uint balance0, uint balance1) private returns (uint step){
+    function update(uint balance0, uint balance1) private {
         require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "Overflow");
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
         // 确保至少1分钟更新一次（防高频操纵）
@@ -48,7 +54,6 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard, IUniswapV2Pair {
         reserve0 = uint112(balance0);
         reserve1 = uint112(balance1);
         blockTimestampLast = blockTimestamp;
-        step = reserve0;
     }
 
     function _update(address from, address to, uint256 value) internal virtual override {
@@ -81,39 +86,46 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard, IUniswapV2Pair {
     }
 
     // 重写 _mint 方法，覆盖父类的零地址校验
-    function mint(address to) public override returns (uint256 liquidity, uint step) {
-        step = 1;
+    function mint(address to) public override returns (uint256 liquidity) {
+        //获取交易对现有的 token0、token1余额
         (uint112 _reserve0, uint112 _reserve1, ) = getReserves();
+        // 获取当前pair交易对中token0、token1的事实余额(加上了本次添加的余额)
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
-        // 1. 计算实际存入金额，防止下溢
-        uint amount0 = balance0 - _reserve0; // 900 - 0
+        // 1. 用实时余额，减去pair的_reserve0，为本次添加的金额，防止下溢
+        uint amount0 = balance0 - _reserve0;
         uint amount1 = balance1 - _reserve1;
-        step = 2;
         require(balance0 >= _reserve0 && balance1 >= _reserve1, "Insufficient balance");
-        require(amount0 > 0 || amount1 > 0, "Zero amount added");
-        // 2. 校验接收地址
+        require(amount0 > 0 || amount1 > 0, "added amount is zero");
+        // 2. 校验接收地址不为address(0)
         require(to != address(0), "Invalid to address");
         // 3. 计算LP代币数量
-        if (_totalSupply == 0) {
-        step = 3;
-            liquidity = sqrt(amount0 * amount1); // 100
-            // _mint(address(0), 1000); // 锁定初始LP
-            _update(address(0), address(0), (1000 * 10 ** decimals()));
+        if (_totalSupply == 0) { // pair总LP 代币为0，代表首次添加
+            // liquidity(本次自己获得的LP 代币) = token0代币 * token1代币  - 初始锁定address(0)中 1000wei 代币的平方
+            liquidity = sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
+            _update(address(0), address(0), MINIMUM_LIQUIDITY);
         } else {
-        step = 4;
             require(_reserve0 > 0 && _reserve1 > 0, "Zero reserves");
+            /**
+             * liquidity(本次自己获得的LP 代币) = 以下两者取更小值
+             * 本次添加的token0代币 * LP 代币余额 / 交易对合约token0余额,
+             * 本次添加的token1代币 * LP 代币余额 / 交易对合约token1余额,
+             * 
+             */
             liquidity = min(amount0 * _totalSupply / _reserve0, amount1 * _totalSupply / _reserve1);
         }
-      // // 4. 校验流动性非零
-        step = 5;
+      // // 4. 本次流动性非0，即获取的 LP 代币 不为 0
         require(liquidity > 0, "Insufficient liquidity");
         // 向to地址，添加liquidity个LP代币
         _update(address(0), to, liquidity);
 
-        step = 6;
         // // 5. 更新储备
-        step = update(balance0, balance1);
+        update(balance0, balance1);
+        emit addLiquidityFinish(
+            liquidity,
+            balance0,
+            balance1
+        );
     }
 
     // 移除流动性（销毁LP代币，返回代币）

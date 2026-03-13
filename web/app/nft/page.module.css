@@ -35,7 +35,7 @@
     display: flex;
     /* justify-content: flex-start; */
     flex-wrap: wrap;
-    max-height: 75vh;
+    height: 75vh;
     /* overflow: auto; */
 }
 .nft_item {
@@ -45,6 +45,7 @@
     overflow: hidden;
     position: relative;
     min-width: 180px;
+    height:300px;
     /* max-width: 200px; */
     /* height: a */
     margin-bottom: 15px;

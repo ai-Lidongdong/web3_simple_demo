@@ -16,8 +16,10 @@ const menuItems = [
     key: '/nft', // 对应原 Menu.Item 的 key
     label: (
       <Link href="/nft">
-        <ProductOutlined style={{ marginRight: 8 }} /> {/* 图标 */}
-        <span>HOME</span> {/* 文本 */}
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px'}}>
+          <ProductOutlined style={{ marginRight: 8 }} /> {/* 图标 */}
+          <span>HOME</span> {/* 文本 */}
+        </div>
       </Link>
     ),
   },
@@ -25,8 +27,10 @@ const menuItems = [
     key: '/nft/myNft', // 对应原 Menu.Item 的 key
     label: (
       <Link href="/nft/myNft">
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px'}}>
         <UserOutlined style={{ marginRight: 8 }} /> {/* 图标 */}
         <span>MY NFT</span> {/* 文本 */}
+        </div>
       </Link>
     ),
   },
@@ -44,7 +48,7 @@ const NFTList = ({ children }: Readonly<{
           trigger={null}
           width={180}
         >
-          <div className={styles.platform_name}>
+          <div className={styles.platform_name} style={{display: 'flex', alignItems: 'center'}}>
             <Image src="/lds_logo.png"
               alt="NFT 图片"
               width={50}

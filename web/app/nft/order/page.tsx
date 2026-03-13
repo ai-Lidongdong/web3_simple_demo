@@ -1,6 +1,6 @@
 'use client';
 import styles from './page.module.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers, Contract } from "ethers";
 import { Button, Input, Image, Form, InputNumber } from 'antd';
 import { usePrivy } from '@privy-io/react-auth';
@@ -24,38 +24,29 @@ const layout = {
     wrapperCol: { span: 16 },
 }
 const Main = () => {
-    const [amount, setAmount] = useState(1);
-    const [mintTokenAddress, setMintTokenAddress] = useState(null);
-    const [burnTokenAddress, setBurnTokenAddress] = useState(null);
-    const [burnAmount, setBurnAmount] = useState(0);
-    const [balance, setBalance] = useState(0);
+    const [amount, setAmount] = useState<number>(1);
+    const [mintTokenAddress, setMintTokenAddress] = useState<string | null>(null);
+    const [burnTokenAddress, setBurnTokenAddress] = useState<string | null>(null);
+    const [burnAmount, setBurnAmount] = useState<number>(0);
+    const [balance, setBalance] = useState<string>('0');
 
 
-    const [mintNftAddress, setMintNftAddress] = useState(null);
-    const [burnNftAddress, setBurnNftAddress] = useState(null);
-    const [burnNftTokenId, setBurnNftTokenId] = useState(null);
-    const [orderId, setOrderId] = useState(null)
-    const [nftBalance, setNftBalance] = useState(0);
-    const [nfts, setNfts] = useState([]);
-    const [allOrders, setAllOrders] = useState([])
-    const [buyerApproveValue, setBuyerApproveValue] = useState(0);
+    const [mintNftAddress, setMintNftAddress] = useState<string | null>(null);
+    const [burnNftAddress, setBurnNftAddress] = useState<string | null>(null);
+    const [burnNftTokenId, setBurnNftTokenId] = useState<string | null>(null);
+    const [orderId, setOrderId] = useState<string | null>(null)
+    const [nftBalance, setNftBalance] = useState<number>(0);
+    const [nfts, setNfts] = useState<any[]>([]);
+    const [allOrders, setAllOrders] = useState<any[]>([])
+    const [buyerApproveValue, setBuyerApproveValue] = useState<number>(0);
 
     const { user } = usePrivy() as any;
     const { address } = user?.wallet || {};
 
-    useEffect(() => {
-        if (user) {
-            getBalance()
-            getNFTBalance()
-            onQueryPlatformAllOrders()
-        }
-    }, [address])
-
 
     // 定义 handleMint 函数，用于铸造代币
     async function onMint() {
-        console.log('---', amount, mintTokenAddress)
-        if (window.ethereum) {
+        if (typeof window !== 'undefined' && window.ethereum) {
             // 创建以太坊提供者和签名者实例
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
@@ -70,7 +61,6 @@ const Main = () => {
                 // const mintAmountInETH = ethers.parseUnits(JSON.stringify(amount), 'ether');
                 // 调用智能合约的 mint 方法，并传入铸造数量
                 const hash = await contract.mintToken(mintTokenAddress, BigInt(amount));
-                console.log('---hash---', hash)
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
                 contract.on("Mint", async () => {
                     getBalance();
@@ -94,7 +84,6 @@ const Main = () => {
                 signer
             );
             try {
-                console.log('11', burnTokenAddress, burnAmount)
                 // 将用户输入的铸造数量转换为以太坊单位（最小单位 Wei）
                 // const mintAmountInETH = ethers.parseUnits(JSON.stringify(burnAmount), 'ether');
                 // 调用智能合约的 mint 方法，并传入铸造数量
@@ -102,19 +91,17 @@ const Main = () => {
 
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
                 contract.on("Burn", async () => {
-                    console.log('---Burn')
                     getBalance();
                 });
             } catch (e) {
                 // 捕获并打印铸造失败的错误信息
-                console.log("error", e);
             }
         }
 
     }
 
-    const getBalance = async () => {
-        if (window.ethereum) {
+    const getBalance = useCallback(async () => {
+        if (window.ethereum && address) {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
 
@@ -125,7 +112,7 @@ const Main = () => {
             );
             try {
                 const userBalance = await contract.balanceOf(address);
-                const balance = ethers.formatUnits(userBalance, 18); // 把wei转换为eth单位
+                const balance = ethers.formatUnits(userBalance, 18);
                 const formattedBalance = parseFloat(balance).toFixed(2);
                 setBalance(formattedBalance);
 
@@ -133,7 +120,7 @@ const Main = () => {
                 console.error('err:', err)
             }
         }
-    }
+    }, [address]);
 
 
     const onMintNft = async () => {
@@ -160,7 +147,6 @@ const Main = () => {
                 getNFTBalance();
                 // const tokenId = await nftContract._tokenIdCounter() - 1; // 获取最新tokenId
                 // const owner = await nftContract.ownerOf(tokenId);
-                // console.log(`NFT #${tokenId} 的所有者：`, owner); // 应等于TARGET_ADDRESS
                 // 5. 验证铸造结果（查询该NFT的所有者）
 
             } catch (err) {
@@ -172,91 +158,16 @@ const Main = () => {
     const onBurnNft = async () => {
 
     }
-    const getNFTBalance = async () => {
-        if (window.ethereum) {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            const contract = new ethers.Contract(
-                MyNFTContractAddress,
-                MyNFTAbi.abi,
-                signer
-            );
-            console.log('contract', contract);
-            try {
-                // const tokenId = await contract.tokenIdCounter() - 1; // 获取最新tokenId
-                // const owner = await contract.ownerOf(tokenId);
-                // console.log(`NFT #${tokenId} 的所有者：`, owner); // 应等于TARGET_ADDRESS
-                const userBalance = await contract?.balanceOf(address);
-                if (typeof userBalance === 'bigint') {
-                    const balanceNum = Number(userBalance);
-                    console.log('balanceNum', balanceNum)
-                    setNftBalance(balanceNum)
-                    const filter = contract.filters.Transfer(null, address); // from 为 null 表示任意，to 为目标地址
-                    const events = await contract.queryFilter(filter, 0, "latest"); // 从区块 0 到最新
-
-                    // 3. 去重并验证当前持有者（排除已转出的 NFT）
-                    const tokenIds = new Set();
-                    for (const event of events) {
-                        console.log('---event', event)
-                        const { tokenId } = event.args;
-                        tokenIds.add(tokenId.toString()); // 去重
-                    }
-                    const ownedTokenIds = [];
-                    for (const id of tokenIds) {
-                        try {
-                            // 4. 验证每个 tokenId 的当前持有者是否为目标地址（避免已转出的 NFT）
-                            const owner = await contract.ownerOf(id);
-                            if (owner.toLowerCase() === address.toLowerCase()) {
-                                ownedTokenIds.push({
-                                    tokenId: id,
-                                    metadata: null
-                                });
-                            }
-                        } catch (err) {
-                            // 忽略不存在的 tokenId（可能已销毁）
-                            continue;
-                        }
-                    }
-                    console.log('----ownedTokenIds', ownedTokenIds)
-
-                    // setNfts(nftItems);
-
-                    // 3. 加载每个 NFT 的元数据
-                    let arr = []
-                    for (let i = 0; i < ownedTokenIds.length; i++) {
-                        const tokenId = ownedTokenIds[i].tokenId;
-                        const tokenUri = await contract.tokenURI(tokenId);
-                        console.log('----tokenUri', tokenUri);
-                        const metadata = await fetchNFTMetadata(tokenUri);
-                        console.log('---metadata', metadata);
-                        arr.push({
-                            ...metadata,
-                            tokenId: ownedTokenIds[i].tokenId
-                        })
-
-                    }
-                    console.log('----arr', arr);
-                    setNfts(arr);
-                }
-            } catch (err) {
-                console.error('err:', err)
-            }
-        }
-    }
-    // 从 IPFS 或 HTTP 加载 NFT 元数据
-    const fetchNFTMetadata = async (tokenUri) => {
+    const fetchNFTMetadata = useCallback(async (tokenUri: string) => {
         try {
-            // 处理 IPFS 路径（如 ipfs://Qm... 转换为 http 链接）
             const url = tokenUri.startsWith('ipfs://')
                 ? `${IPFS_GATEWAY}${tokenUri.slice(7)}`
                 : tokenUri;
-            console.log('---url', url)
             const response = await fetch(url);
             if (!response.ok) throw new Error('元数据加载失败');
 
             const metadata = await response.json();
 
-            // 处理图片的 IPFS 路径
             if (metadata.image?.startsWith('ipfs://')) {
                 metadata.image = `${IPFS_GATEWAY}${metadata.image.slice(7)}`;
             }
@@ -266,7 +177,62 @@ const Main = () => {
             console.error('加载元数据失败:', err);
             return null;
         }
-    };
+    }, []);
+
+    const getNFTBalance = useCallback(async () => {
+        if (window.ethereum && address) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = new ethers.Contract(
+                MyNFTContractAddress,
+                MyNFTAbi.abi,
+                signer
+            );
+            try {
+                const userBalance = await contract?.balanceOf(address);
+                if (typeof userBalance === 'bigint') {
+                    const balanceNum = Number(userBalance);
+                    setNftBalance(balanceNum);
+                    const filter = contract.filters.Transfer(null, address);
+                    const events = await contract.queryFilter(filter, 0, "latest");
+
+                    const tokenIds = new Set<string>();
+                    for (const event of events as any[]) {
+                        const { tokenId } = event.args;
+                        tokenIds.add(tokenId.toString());
+                    }
+                    const ownedTokenIds: { tokenId: string; metadata: null }[] = [];
+                    for (const id of tokenIds) {
+                        try {
+                            const owner = await contract.ownerOf(id);
+                            if (owner.toLowerCase() === address.toLowerCase()) {
+                                ownedTokenIds.push({
+                                    tokenId: id,
+                                    metadata: null
+                                });
+                            }
+                        } catch (err) {
+                            continue;
+                        }
+                    }
+
+                    const arr: any[] = [];
+                    for (let i = 0; i < ownedTokenIds.length; i++) {
+                        const tokenId = ownedTokenIds[i].tokenId;
+                        const tokenUri = await contract.tokenURI(tokenId);
+                        const metadata = await fetchNFTMetadata(tokenUri);
+                        arr.push({
+                            ...metadata,
+                            tokenId: ownedTokenIds[i].tokenId
+                        });
+                    }
+                    setNfts(arr);
+                }
+            } catch (err) {
+                console.error('err:', err)
+            }
+        }
+    }, [address, fetchNFTMetadata]);
 
     // 允许 operator 操作调用者的所有 NFT
     const onApprove = async () => {
@@ -286,7 +252,6 @@ const Main = () => {
 
                 // 授权：允许 operator 操作调用者的所有 NFT
                 const tx = await nftContract.setApprovalForAll(NFTMarketPlaceAddress, true);
-                console.log('---approve result', tx)
 
             } catch (err) {
                 console.error("铸造失败：", err);
@@ -296,7 +261,7 @@ const Main = () => {
     }
 
 
-    const onSubmit = async (event) => {
+    const onSubmit = async (event: any) => {
         const { nftContract, tokenId, price, paymentToken } = event;
         if (window.ethereum) {
             // 创建以太坊提供者和签名者实例
@@ -317,7 +282,6 @@ const Main = () => {
                 );
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
                 contract.on("OrderCreated", async (a, b, c, d, e) => {
-                    console.log('---创建完成', a, b, c, d, e) // 0n 0x0B45b5157eD10e44833DE67199D8565E28C2fC6E 0x2924Af181Fb2C68E65cAfd9611b44BCe9fb68074 0n 20n
                     getBalance()
                     getNFTBalance()
                     onQueryPlatformAllOrders()
@@ -330,7 +294,6 @@ const Main = () => {
     }
     const onQueryOneOrder = async () => {
         if (!orderId) {
-            console.log('--请输入订单号', 请输入订单号)
             return;
         }
         // 创建以太坊提供者和签名者实例
@@ -345,7 +308,6 @@ const Main = () => {
         // const orderId = 1; // 要查询的订单 ID
         // 调用合约的 orders 映射（public 自动生成 getter 函数）
         const order = await contract.orders(orderId);
-        console.log('----order', order)
 
 
         // 按索引映射（与结构体字段顺序严格对应）
@@ -359,11 +321,9 @@ const Main = () => {
             isActive: order[6],
             isEscrowed: order[7]
         };
-        console.log("订单详情:", orderData);
     }
 
-    // 查询该合约平台中所有的 订单
-    const onQueryPlatformAllOrders = async () => {
+    const onQueryPlatformAllOrders = useCallback(async () => {
         if (window.ethereum) {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
@@ -372,12 +332,10 @@ const Main = () => {
                 NFTMarketPlaceAbi.abi,
                 signer
             );
-            const filter = contract.filters.OrderCreated(); // 无参数：查询所有事件
-            const events = await contract.queryFilter(filter, 0, "latest"); // 从区块 0 到最新
-            console.log('---events', events)
+            const filter = contract.filters.OrderCreated();
+            const events = await contract.queryFilter(filter, 0, "latest");
 
-            // 解析事件数据
-            const orders = await Promise.all(events.map(async (event) => {
+            const orders = await Promise.all(events.map(async (event: any) => {
                 const { args } = event;
                 const [id, seller, nftContract, tokenId, price] = args;
                 const nftInfo = await onQueryOneNftInfo(nftContract, tokenId);
@@ -388,17 +346,16 @@ const Main = () => {
                     nftContract,
                     tokenId: tokenId.toString(),
                     price: Number(price),
-                    blockNumber: event.blockNumber, // 订单创建的区块号
-                    transactionHash: event.transactionHash, // 交易哈希
+                    blockNumber: event.blockNumber,
+                    transactionHash: event.transactionHash,
                 };
-            }))
-            setAllOrders(orders)
-            console.log("所有订单:", orders);
+            }));
+            setAllOrders(orders);
         }
-    }
+    }, []);
 
     // 查询按个nft信息
-    const onQueryOneNftInfo = async (contractAddress, tokenId) => {
+    const onQueryOneNftInfo = async (contractAddress: string, tokenId: any) => {
         if (window.ethereum) {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
@@ -426,7 +383,6 @@ const Main = () => {
                 signer
             );
             try {
-                console.log('---授权金额--->', buyerApproveValue)
                 const tx = await contract.approve(NFTMarketPlaceAddress, buyerApproveValue);
                 console.log("铸造交易已发送，哈希：", tx);
 
@@ -457,7 +413,6 @@ const Main = () => {
                 await contract.buyNFT(orderId);
                 // 监听合约的 Mint 事件，铸造完成后刷新余额
                 contract.on("OrderExecuted", async (a, b, c, d) => {
-                    console.log('---创建完成', a, b, c, d) // 0n 0x0B45b5157eD10e44833DE67199D8565E28C2fC6E 0x2924Af181Fb2C68E65cAfd9611b44BCe9fb68074 0n 20n
                     getBalance()
                     getNFTBalance()
                     onQueryPlatformAllOrders()
@@ -494,6 +449,14 @@ const Main = () => {
 
     }
 
+    useEffect(() => {
+        if (user) {
+            getBalance();
+            getNFTBalance();
+            onQueryPlatformAllOrders();
+        }
+    }, [user, getBalance, getNFTBalance, onQueryPlatformAllOrders]);
+
     return (
         <div className={styles.box_wrap}>
             {
@@ -520,7 +483,7 @@ const Main = () => {
                             <h4>nft 列表</h4>
                             {nfts.map((item: any) => {
                                 return (
-                                    <p style={{ border: 'solid 1px #f2f2f2', display: 'flex', alignItems: 'center', padding: '0 100px' }}>
+                                    <p key={item.tokenId} style={{ border: 'solid 1px #f2f2f2', display: 'flex', alignItems: 'center', padding: '0 100px' }}>
                                         <span style={{ marginRight: '20px' }}>tokenId：{item.tokenId}</span>
                                         <Image style={{ width: '100px', verticalAlign: 'middle' }} src={item.image} />
                                     </p>
@@ -578,7 +541,7 @@ const Main = () => {
                             <h3>查询平台合约中的nft</h3>
                             {allOrders.map((item: any) => {
                                 return (
-                                    <p style={{ border: 'solid 1px #f2f2f2', display: 'flex', alignItems: 'center', padding: '0 100px' }}>
+                                    <p key={item.orderId} style={{ border: 'solid 1px #f2f2f2', display: 'flex', alignItems: 'center', padding: '0 100px' }}>
                                         <span style={{ marginRight: '20px' }}>orderId：{item.orderId}</span>
                                         <span style={{ marginRight: '20px' }}>tokenId：{item.tokenId}</span>
                                         <span style={{ marginRight: '20px' }}>price：{item.price}</span>
@@ -590,7 +553,7 @@ const Main = () => {
                         </div>
                         <div className={styles.main}>
                             <h1 style={{ fontSize: '32px' }}>购买nft</h1>
-                            <Input style={{width: '150px'}} onChange={(e) => { setBuyerApproveValue(e.target.value) }}/>
+                            <Input style={{width: '150px'}} onChange={(e) => { setBuyerApproveValue(Number(e.target.value)) }}/>
                             <div style={{margin: '20px 0'}}><Button onClick={onApprovePlatformTransferCoin}>授权平台可以转移代币</Button></div>
 
                             <div style={{margin: '20px 0'}}><Button onClick={queryApprovedCoin}>查询已授权金额</Button></div>

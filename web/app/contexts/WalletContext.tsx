@@ -107,7 +107,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
   // 监听账户变化（用户切换 MetaMask 账户）
   useEffect(() => {
-    console.log('----检测到chainId变化')
+    console.log('检测到chainId变化')
     if (!isMetaMaskInstalled()) return;
 
     const handleAccountsChanged = (accounts: string[]) => {

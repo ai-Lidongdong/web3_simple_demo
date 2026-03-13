@@ -184,11 +184,6 @@
         "internalType": "uint256",
         "name": "liquidity",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "step",
-        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",

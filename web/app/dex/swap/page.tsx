@@ -1,6 +1,6 @@
 // src/pages/SwapPage.tsx
 'use client';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, Input } from 'antd';
 import { ethers } from "ethers";
 import { useSelector } from 'react-redux';
@@ -20,26 +20,26 @@ const ContractModule = {
 
 const ApproveCoin = () => {
   const { chainId } = useSelector((state: RootState) => state.network);
-  const { tokenA, tokenB, tokenC } = useContracts();
+  const { tokenAContract, tokenBContract, tokenCContract } = useContracts();
   const [approveTokenAAmount, setApproveTokenAAmount] = useState(0);
   const [approveTokenBAmount, setApproveTokenBAmount] = useState(0);
   const [approveTokenCAmount, setApproveTokenCAmount] = useState(0);
 
   // 授权Router可以转移TokenA代币
   const onApproveTransferTokenA = async () => {
-    const tx = await tokenA?.approve(CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS, approveTokenAAmount);
+    const tx = await tokenAContract?.approve(CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS, approveTokenAAmount);
     console.log('-授权Router可以转移TokenA代币--结果', tx)
   }
 
   // 授权Router可以转移TokenB代币
   const onApproveTransferTokenB = async () => {
-    const tx = await tokenB?.approve(CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS, approveTokenBAmount);
+    const tx = await tokenBContract?.approve(CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS, approveTokenBAmount);
     console.log('-授权Router可以转移TokenB代币--结果', tx)
   }
 
   // 授权Router可以转移TokenC代币
   const onApproveTransferTokenC = async () => {
-    const tx = await tokenC?.approve(CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS, approveTokenCAmount);
+    const tx = await tokenCContract?.approve(CONTRACTS_ADDRESSE[chainId].ROUTER_CONTRACT_ADDRESS, approveTokenCAmount);
     console.log('-授权Router可以转移TokenC代币--结果', tx)
   }
   return (
@@ -59,7 +59,7 @@ const ApproveCoin = () => {
 
 
 const SwapPage = () => {
-  const { tokenA, tokenB, tokenC } = useContracts();
+  const { tokenAContract, tokenBContract, tokenCContract } = useContracts();
 
   // const { dexRouter, dexPair, tokenA, tokenB, tokenC } = useContracts();
   // if (!dexRouter || !dexPair) return;
@@ -79,45 +79,44 @@ const SwapPage = () => {
   const [liquidityTokenA, setLiquidityTokenA] = useState(0);
   const [liquidityTokenB, setLiquidityTokenB] = useState(0);
 
-  useEffect(() => {
-    getTokenBalance()
-    getPairBalance();
-  }, []);
-
-  const getPairBalance = async () => {
+  const getPairBalance = useCallback(async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
-    // 初始化智能合约实例
     const contract = new ethers.Contract(
       ContractModule.UniswapV2Pair,
       UniswapV2PairABI.abi,
       signer
     );
     const [reserveA, reserveB] = await contract.getReserves();
-    console.log('---abb', reserveA, reserveB);
-  }
+  }, []);
 
+  const getTokenBalance = useCallback(async () => {
+    const userTokenABalance = await tokenAContract?.balanceOf(address);
+    if (userTokenABalance) {
+      const balanceA = ethers.formatUnits(userTokenABalance, 18);
+      const formattedBalanceA = parseFloat(balanceA).toFixed(2);
+      setTokenABalance(formattedBalanceA);
+    }
 
-  const getTokenBalance = async () => {
-    const userTokenABalance = await tokenA?.balanceOf(address);
-    const balanceA = ethers.formatUnits(userTokenABalance, 18); // 把wei转换为eth单位
-    const formattedBalanceA = parseFloat(balanceA).toFixed(2);
-    setTokenABalance(formattedBalanceA);
+    const userTokenBBalance = await tokenBContract?.balanceOf(address);
+    if (userTokenBBalance) {
+      const balanceB = ethers.formatUnits(userTokenBBalance, 18);
+      const formattedBalanceB = parseFloat(balanceB).toFixed(2);
+      setTokenBBalance(formattedBalanceB);
+    }
 
-    const userTokenBBalance = await tokenA?.balanceOf(address);
-    const balanceB = ethers.formatUnits(userTokenBBalance, 18); // 把wei转换为eth单位
-    const formattedBalanceB = parseFloat(balanceB).toFixed(2);
-    setTokenBBalance(formattedBalanceB);
+    const userTokenCBalance = await tokenCContract?.balanceOf(address);
+    if (userTokenCBalance) {
+      const balanceC = ethers.formatUnits(userTokenCBalance, 18);
+      const formattedBalanceC = parseFloat(balanceC).toFixed(2);
+      setTokenCBalance(formattedBalanceC);
+    }
+  }, [tokenAContract, tokenBContract, tokenCContract, address]);
 
-    const userTokenCBalance = await tokenA?.balanceOf(address);
-    const balanceC = ethers.formatUnits(userTokenCBalance, 18); // 把wei转换为eth单位
-    const formattedBalanceC = parseFloat(balanceC).toFixed(2);
-    setTokenCBalance(formattedBalanceC);
-
-    // 查询Pair合约余额
-    // const reserve0 = await dexPair?.getReserves();
-    // console.log('-----reserve0', reserve0)
-  }
+  useEffect(() => {
+    getTokenBalance();
+    getPairBalance();
+  }, [getTokenBalance, getPairBalance]);
 
   // 计算预估兑换数量
   const handleCalculate = async () => {

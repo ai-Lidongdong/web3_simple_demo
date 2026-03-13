@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Image, Modal, Form, Input, Switch } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { fetchNFTMetadata } from '../../../utils'
@@ -26,17 +26,21 @@ const NFTDetail = () => {
     const [nftInfo, setNftInfo] = useState<NFTMetadataRes>();
     const [openModal, setOpenModal] = useState<boolean>(false);
     
+    const getNftDetail = useCallback(async () => {
+        if (!myNFT || !tokenId) {
+            return;
+        }
+        const cid = await myNFT.tokenURI(tokenId);
+        const metadata = await fetchNFTMetadata(cid);
+        setNftInfo(metadata);
+        setNftCid(cid);
+    }, [myNFT, tokenId]);
+
     useEffect(() => {
         if (myNFT) {
             getNftDetail();
         }
-    }, [myNFT])
-    const getNftDetail = async () => {
-        const cid = await myNFT?.tokenURI(tokenId);
-        const metadata = await fetchNFTMetadata(cid);
-        setNftInfo(metadata)
-        setNftCid(cid)
-    }
+    }, [myNFT, getNftDetail]);
 
     // open the modal to create order by nft
     const onSaleNFT = async () => {
@@ -65,10 +69,8 @@ const NFTDetail = () => {
                     paymentToken,
                     nftCid
                 );
-                // 监听合约的 Mint 事件，铸造完成后刷新余额
-                NFTMarketPlace?.on("OrderCreated", async (a, b, c, d, e) => {
+                (NFTMarketPlace as any)?.on("OrderCreated", async (a: any, b: any, c: any, d: any, e: any) => {
                     setOpenModal(false);
-                    getNftDetail();
                     router.replace('/nft');
                 });
             } catch (err) {
@@ -139,7 +141,7 @@ const NFTDetail = () => {
                                 style={{ width: 600 }}
                             >
                                 <Form.Item label="Image" valuePropName="fileList">
-                                    <Image width={200} src={nftInfo?.image} />
+                                    <Image width={200} src={nftInfo?.image} alt={nftInfo?.name ?? ''} />
                                 </Form.Item>
                                 <Form.Item name="name" label="Name">
                                     <Input disabled />
@@ -159,7 +161,7 @@ const NFTDetail = () => {
                                 <Form.Item name='paymentToken' label="Token Contarct">
                                     <Input disabled />
                                 </Form.Item>
-                                <Form.Item name='price' label="Price">
+                                <Form.Item name='price' label="Price" rules={[{ required: true }]}>
                                     <Input placeholder='please input price of the nft' />
                                 </Form.Item>
                                 <Form.Item name="isEscrowed" label="is escrowed">

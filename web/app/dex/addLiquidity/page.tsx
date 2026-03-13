@@ -1,10 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { Button, Input, Select } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
 import { useContracts } from '@/app/contexts/DexContractContext';
+
+type TokenOption = {
+    value: string;
+    label: string;
+};
 
 const Home = () => {
     const {
@@ -16,17 +21,28 @@ const Home = () => {
     } = useContracts(); // 获取合约实例
     const { address } = useSelector((state: RootState) => state.wallet);
     const { CONTRACTS_ADDRESSE } = useSelector((state: RootState) => state.network);
-    
-    // 功能状态（添加流动性）
-    const [TOKENS, setTOKENS] = useState<any>([]);
-    const [addToken1, setAddToken1] = useState({});
-    const [addToken2, setAddToken2] = useState({ value: CONTRACTS_ADDRESSE.TOKENB_CONTRACT_ADDRESS, label: 'TB' });
+
+    const [TOKENS, setTOKENS] = useState<TokenOption[]>([]);
+    const [addToken1, setAddToken1] = useState<TokenOption | null>(null);
+    const [addToken2, setAddToken2] = useState<TokenOption | null>(null);
 
     const [addAmount1, setAddAmount1] = useState('');
     const [addAmount2, setAddAmount2] = useState('');
     const [addLoading, setAddLoading] = useState(false);
 
+    const queryAllowance = useCallback(async () => {
+        const allowanceTokenAmountA: string =
+            (await tokenAContract?.allowance(address, CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS))?.toString() || '';
+        const allowanceTokenAmountB: string =
+            (await tokenBContract?.allowance(address, CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS))?.toString() || '';
+        console.log('tokenA授权金额', allowanceTokenAmountA);
+        console.log('tokenB授权金额', allowanceTokenAmountB);
 
+        return {
+            allowanceAmount: ethers.parseUnits(allowanceTokenAmountA, 18),
+            allowanceAmountB: ethers.parseUnits(allowanceTokenAmountB, 18),
+        };
+    }, [tokenAContract, tokenBContract, address, CONTRACTS_ADDRESSE]);
 
     useEffect(() => {
         if (CONTRACTS_ADDRESSE) {
@@ -34,25 +50,12 @@ const Home = () => {
                 { value: CONTRACTS_ADDRESSE.TOKENA_CONTRACT_ADDRESS, label: 'TA' },
                 { value: CONTRACTS_ADDRESSE.TOKENB_CONTRACT_ADDRESS, label: 'TB' },
                 { value: CONTRACTS_ADDRESSE.TOKENC_CONTRACT_ADDRESS, label: 'TC' },
-            ])
-            setAddToken1({ value: CONTRACTS_ADDRESSE.TOKENA_CONTRACT_ADDRESS, label: 'TA' })
-            setAddToken2({ value: CONTRACTS_ADDRESSE.TOKENB_CONTRACT_ADDRESS, label: 'TB' })
-            queryAllowance()
+            ]);
+            setAddToken1({ value: CONTRACTS_ADDRESSE.TOKENA_CONTRACT_ADDRESS, label: 'TA' });
+            setAddToken2({ value: CONTRACTS_ADDRESSE.TOKENB_CONTRACT_ADDRESS, label: 'TB' });
+            queryAllowance();
         }
-    }, [CONTRACTS_ADDRESSE]);
-
-    // 查询已授权金额
-    const queryAllowance = async () => {
-        const allowanceTokenAmountA: string = (await tokenAContract?.allowance(address, CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS))?.toString() || '';
-        const allowanceTokenAmountB: string = (await tokenBContract?.allowance(address, CONTRACTS_ADDRESSE.ROUTER_CONTRACT_ADDRESS))?.toString() || '';
-        console.log('tokenA授权金额', allowanceTokenAmountA)
-        console.log('tokenB授权金额', allowanceTokenAmountB)
-
-        return {
-            allowanceAmount: ethers.parseUnits(allowanceTokenAmountA, 18),
-            allowanceAmountB: ethers.parseUnits(allowanceTokenAmountB, 18)
-        }
-    }
+    }, [CONTRACTS_ADDRESSE, queryAllowance]);
 
     // 授权金额
     const onApproveAmount = async () => {
@@ -63,7 +66,7 @@ const Home = () => {
 
     // 执行添加流动性
     const handleAddLiquidity = async () => {
-        if (!uniswapV2Router || !addAmount1 || !addAmount2) return;
+        if (!uniswapV2Router || !addAmount1 || !addAmount2 || !addToken1 || !addToken2) return;
         try {
             setAddLoading(true);
             const amountA = ethers.parseUnits(addAmount1, 18);
@@ -116,11 +119,32 @@ const Home = () => {
                 to,
             );
             await tx.wait();
-            uniswapV2Router?.on("Increment", async (event) => {
-                console.log('---event', event)
+            (uniswapV2Router as any)?.on("Increment", async (
+                to: any,
+                pair: any,
+                token0: any,
+                token1: any,
+                token0Amount: any,
+                token1Amount: any,
+                token0AmountMin: any,
+                token1AmountMin: any,
+                amountA: any,
+                amountB: any,
+                liquidity: any) => {
+                console.log('---Increment',
+                    to,
+                    pair,
+                    token0,
+                    token1,
+                    token0Amount,
+                    token1Amount,
+                    token0AmountMin,
+                    token1AmountMin,
+                    amountA,
+                    amountB,
+                    liquidity)
             });
         } catch (err) {
-
             console.error('添加流动性失败:', err);
             alert('添加流动性失败，请检查余额和授权');
         } finally {
@@ -128,11 +152,11 @@ const Home = () => {
         }
     };
     // 计算添加流动性所需数量
-    
+
     const calculateAddLiquidity = async () => {
-        if (!uniswapV2Router || !addAmount1 || addToken1.address === addToken2.address) return;
+        if (!uniswapV2Router || !addAmount1 || !addToken1 || !addToken2 || addToken1.value === addToken2.value) return;
         try {
-            const pairAddress = await uniswapV2Factory?.getPair(addToken1.address, addTokenB.address);
+            const pairAddress = await uniswapV2Factory?.getPair(addToken1.value, addToken2.value);
             if (pairAddress === ethers.ZeroAddress) {
                 // 新交易对，不需要计算比例
                 console.log('--新交易对，不需要计算比例')
@@ -163,7 +187,7 @@ const Home = () => {
                         <h2>添加流动性</h2>
                         <div style={{ display: 'flex', alignItems: 'center' }} className="input-group">
                             <Select
-                                style={{marginRight: '15px', width: 120}}
+                                style={{ marginRight: '15px', width: 120 }}
                                 labelInValue
                                 defaultValue={{ value: TOKENS[0].value, label: TOKENS[0].label }}
                                 onChange={(value) => {
@@ -181,10 +205,10 @@ const Home = () => {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center' }} className="input-group">
                             <Select
-                                style={{marginRight: '15px', width: 120}}
+                                style={{ marginRight: '15px', width: 120 }}
                                 labelInValue
                                 defaultValue={{ value: TOKENS[1].value, label: TOKENS[1].label }}
-                                onChange={(value) => {setAddToken2(value)}}
+                                onChange={(value) => { setAddToken2(value) }}
                                 options={TOKENS}
                             />
                             <Input
@@ -198,7 +222,7 @@ const Home = () => {
                         <div className="input-group">
                         </div>
                         <Button type="primary" onClick={handleAddLiquidity} disabled={!address || addLoading}>
-                            {addLoading ? '处理中...' : `添加 ${addToken1.label}-${addToken2.label} 执行流动1性`}
+                            {addLoading ? '处理中...' : `添加 ${addToken1?.label}-${addToken2?.label} 执行流动1性`}
                         </Button>
                     </section>
                 ) : null

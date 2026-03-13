@@ -8,7 +8,7 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   export interface UniswapV2RouterInterface extends Interface {
     getFunction(nameOrSignature: "addLiquidity" | "factory" | "getAmountsOut" | "removeLiquidity" | "swapExactTokensForTokens" | "x"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "Increment"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "Increment" | "RemoveEvent"): EventFragment;
 
     encodeFunctionData(functionFragment: 'addLiquidity', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, AddressLike]): string;
 encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
@@ -27,9 +27,21 @@ decodeFunctionResult(functionFragment: 'x', data: BytesLike): Result;
 
   
     export namespace IncrementEvent {
-      export type InputTuple = [to: AddressLike, step: BigNumberish, pair: AddressLike, token0: AddressLike, token1: AddressLike, token0Amount: BigNumberish, token1Amount: BigNumberish, token0AmountMin: BigNumberish, token1AmountMin: BigNumberish, amountA: BigNumberish, amountB: BigNumberish, liquidity: BigNumberish];
-      export type OutputTuple = [to: string, step: bigint, pair: string, token0: string, token1: string, token0Amount: bigint, token1Amount: bigint, token0AmountMin: bigint, token1AmountMin: bigint, amountA: bigint, amountB: bigint, liquidity: bigint];
-      export interface OutputObject {to: string, step: bigint, pair: string, token0: string, token1: string, token0Amount: bigint, token1Amount: bigint, token0AmountMin: bigint, token1AmountMin: bigint, amountA: bigint, amountB: bigint, liquidity: bigint };
+      export type InputTuple = [to: AddressLike, pair: AddressLike, token0: AddressLike, token1: AddressLike, token0Amount: BigNumberish, token1Amount: BigNumberish, token0AmountMin: BigNumberish, token1AmountMin: BigNumberish, amountA: BigNumberish, amountB: BigNumberish, liquidity: BigNumberish];
+      export type OutputTuple = [to: string, pair: string, token0: string, token1: string, token0Amount: bigint, token1Amount: bigint, token0AmountMin: bigint, token1AmountMin: bigint, amountA: bigint, amountB: bigint, liquidity: bigint];
+      export interface OutputObject {to: string, pair: string, token0: string, token1: string, token0Amount: bigint, token1Amount: bigint, token0AmountMin: bigint, token1AmountMin: bigint, amountA: bigint, amountB: bigint, liquidity: bigint };
+      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+      export type Filter = TypedDeferredTopicFilter<Event>
+      export type Log = TypedEventLog<Event>
+      export type LogDescription = TypedLogDescription<Event>
+    }
+
+  
+
+    export namespace RemoveEventEvent {
+      export type InputTuple = [step: BigNumberish, pair: AddressLike, allowance: BigNumberish];
+      export type OutputTuple = [step: bigint, pair: string, allowance: bigint];
+      export interface OutputObject {step: bigint, pair: string, allowance: bigint };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -154,11 +166,16 @@ getFunction(nameOrSignature: 'x'): TypedContractMethod<
     >;
 
     getEvent(key: 'Increment'): TypedContractEvent<IncrementEvent.InputTuple, IncrementEvent.OutputTuple, IncrementEvent.OutputObject>;
+getEvent(key: 'RemoveEvent'): TypedContractEvent<RemoveEventEvent.InputTuple, RemoveEventEvent.OutputTuple, RemoveEventEvent.OutputObject>;
 
     filters: {
       
-      'Increment(address,uint256,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)': TypedContractEvent<IncrementEvent.InputTuple, IncrementEvent.OutputTuple, IncrementEvent.OutputObject>;
+      'Increment(address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)': TypedContractEvent<IncrementEvent.InputTuple, IncrementEvent.OutputTuple, IncrementEvent.OutputObject>;
       Increment: TypedContractEvent<IncrementEvent.InputTuple, IncrementEvent.OutputTuple, IncrementEvent.OutputObject>;
+    
+
+      'RemoveEvent(uint256,address,uint256)': TypedContractEvent<RemoveEventEvent.InputTuple, RemoveEventEvent.OutputTuple, RemoveEventEvent.OutputObject>;
+      RemoveEvent: TypedContractEvent<RemoveEventEvent.InputTuple, RemoveEventEvent.OutputTuple, RemoveEventEvent.OutputObject>;
     
     };
   }

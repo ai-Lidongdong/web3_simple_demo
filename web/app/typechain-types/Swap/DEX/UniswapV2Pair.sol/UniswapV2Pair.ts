@@ -6,11 +6,12 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface UniswapV2PairInterface extends Interface {
-    getFunction(nameOrSignature: "allowance" | "approve" | "balanceOf" | "burn" | "decimals" | "getReserves" | "initialize" | "mint" | "name" | "swap" | "symbol" | "token0" | "token1" | "totalSupply" | "transfer" | "transferFrom"): FunctionFragment;
+    getFunction(nameOrSignature: "MINIMUM_LIQUIDITY" | "allowance" | "approve" | "balanceOf" | "burn" | "decimals" | "getReserves" | "initialize" | "mint" | "name" | "swap" | "symbol" | "token0" | "token1" | "totalSupply" | "transfer" | "transferFrom"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "Approval" | "Transfer"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "Approval" | "Transfer" | "addLiquidityFinish"): EventFragment;
 
-    encodeFunctionData(functionFragment: 'allowance', values: [AddressLike, AddressLike]): string;
+    encodeFunctionData(functionFragment: 'MINIMUM_LIQUIDITY', values?: undefined): string;
+encodeFunctionData(functionFragment: 'allowance', values: [AddressLike, AddressLike]): string;
 encodeFunctionData(functionFragment: 'approve', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'burn', values: [AddressLike]): string;
@@ -27,7 +28,8 @@ encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
 encodeFunctionData(functionFragment: 'transfer', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'transferFrom', values: [AddressLike, AddressLike, BigNumberish]): string;
 
-    decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'MINIMUM_LIQUIDITY', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'burn', data: BytesLike): Result;
@@ -70,6 +72,18 @@ decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
 
   
 
+    export namespace addLiquidityFinishEvent {
+      export type InputTuple = [liquidity: BigNumberish, balance0: BigNumberish, balance1: BigNumberish];
+      export type OutputTuple = [liquidity: bigint, balance0: bigint, balance1: bigint];
+      export interface OutputObject {liquidity: bigint, balance0: bigint, balance1: bigint };
+      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+      export type Filter = TypedDeferredTopicFilter<Event>
+      export type Log = TypedEventLog<Event>
+      export type LogDescription = TypedLogDescription<Event>
+    }
+
+  
+
   export interface UniswapV2Pair extends BaseContract {
     
     connect(runner?: ContractRunner | null): UniswapV2Pair;
@@ -103,6 +117,14 @@ decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
 
 
     
+    
+    MINIMUM_LIQUIDITY: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
     
     allowance: TypedContractMethod<
       [owner: AddressLike, spender: AddressLike, ],
@@ -162,7 +184,7 @@ decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
     
     mint: TypedContractMethod<
       [to: AddressLike, ],
-      [[bigint, bigint] & {liquidity: bigint, step: bigint }],
+      [bigint],
       'nonpayable'
     >
     
@@ -234,7 +256,12 @@ decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
 
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-    getFunction(nameOrSignature: 'allowance'): TypedContractMethod<
+    getFunction(nameOrSignature: 'MINIMUM_LIQUIDITY'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'allowance'): TypedContractMethod<
       [owner: AddressLike, spender: AddressLike, ],
       [bigint],
       'view'
@@ -271,7 +298,7 @@ getFunction(nameOrSignature: 'initialize'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'mint'): TypedContractMethod<
       [to: AddressLike, ],
-      [[bigint, bigint] & {liquidity: bigint, step: bigint }],
+      [bigint],
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'name'): TypedContractMethod<
@@ -317,6 +344,7 @@ getFunction(nameOrSignature: 'transferFrom'): TypedContractMethod<
 
     getEvent(key: 'Approval'): TypedContractEvent<ApprovalEvent.InputTuple, ApprovalEvent.OutputTuple, ApprovalEvent.OutputObject>;
 getEvent(key: 'Transfer'): TypedContractEvent<TransferEvent.InputTuple, TransferEvent.OutputTuple, TransferEvent.OutputObject>;
+getEvent(key: 'addLiquidityFinish'): TypedContractEvent<addLiquidityFinishEvent.InputTuple, addLiquidityFinishEvent.OutputTuple, addLiquidityFinishEvent.OutputObject>;
 
     filters: {
       
@@ -326,6 +354,10 @@ getEvent(key: 'Transfer'): TypedContractEvent<TransferEvent.InputTuple, Transfer
 
       'Transfer(address,address,uint256)': TypedContractEvent<TransferEvent.InputTuple, TransferEvent.OutputTuple, TransferEvent.OutputObject>;
       Transfer: TypedContractEvent<TransferEvent.InputTuple, TransferEvent.OutputTuple, TransferEvent.OutputObject>;
+    
+
+      'addLiquidityFinish(uint256,uint256,uint256)': TypedContractEvent<addLiquidityFinishEvent.InputTuple, addLiquidityFinishEvent.OutputTuple, addLiquidityFinishEvent.OutputObject>;
+      addLiquidityFinish: TypedContractEvent<addLiquidityFinishEvent.InputTuple, addLiquidityFinishEvent.OutputTuple, addLiquidityFinishEvent.OutputObject>;
     
     };
   }

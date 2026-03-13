@@ -68,7 +68,6 @@ export const syncHistoricalEvents = async () => {
             paymentToken, // 支付代币地址
             isActive, isEscrowed, // 是否托管（布尔值）
              } = event.args;
-            console.log('---event.args', event.args);
             // 转换类型（适配 MySQL 表结构）
             const orderIdNum = orderId.toString();
             const tokenIdNum = tokenId.toString();

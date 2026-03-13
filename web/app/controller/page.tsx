@@ -2,13 +2,15 @@
 import styles from './page.module.css';
 import { useState, useEffect } from 'react';
 import { ethers } from "ethers";
+import { useNetwork } from '../contexts/NetworkContext'; // 获取 chainId
 import { Button, Input } from 'antd';
 import { usePrivy } from '@privy-io/react-auth';
-import { COIN_CONTRACT_ADDRESS } from '../constants';
+import { CONTRACTS_ADDRESSE } from '../constants';
 import MyNFTABI from '../artifacts/MyTokenModule#MyToken.json';
 
 const Controller = () => {
     const { user } = usePrivy() as any;
+    const { chainId } = useNetwork();
     const { address } = user?.wallet || {};
     const [mintTokenAddress, setMintTokenAddress] = useState(null);
     const [amount, setAmount] = useState(1);
@@ -22,13 +24,13 @@ const Controller = () => {
 
     // 定义 handleMint 函数，用于铸造代币
     async function onMint() {
-        if (window.ethereum) {
+        if (window.ethereum && chainId) {
             // 创建以太坊提供者和签名者实例
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             // 初始化智能合约实例
             const contract = new ethers.Contract(
-                COIN_CONTRACT_ADDRESS,
+                CONTRACTS_ADDRESSE[chainId].COIN_CONTRACT_ADDRESS,
                 MyNFTABI.abi,
                 signer
             );
@@ -50,11 +52,11 @@ const Controller = () => {
 
     // query balance of token in user's address
     const getBalance = async () => {
-        if (window.ethereum) {
+        if (window.ethereum && chainId) {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = new ethers.Contract(
-                COIN_CONTRACT_ADDRESS,
+                CONTRACTS_ADDRESSE[chainId].COIN_CONTRACT_ADDRESS,
                 MyNFTABI.abi,
                 signer,
             );
