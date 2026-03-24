@@ -229,7 +229,7 @@ const MyNft = () => {
 
                               <div className={styles.nft_info}>
                                 <div className={styles.top}>
-                                  <span className={styles.single_line}>{nftInfo.name}哈哈哈好好</span>
+                                  <span className={styles.single_line}>{nftInfo?.name}哈哈哈好好</span>
                                   <span className={styles.token_id}>#{tokenId}</span>
                                 </div>
                                 <div className={styles.detail}>

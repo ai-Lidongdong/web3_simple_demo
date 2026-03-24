@@ -20,6 +20,7 @@ export const getCookie = (name: any) => {
 
 
 export const onUploadJsonToPinata = async (data: any) => {
+  console.log('0process.env1', process.env.NEXT_PUBLIC_PINATA_JWT)
   try {
     // check this data is object or not
     if (typeof data !== 'object') {
